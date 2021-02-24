@@ -10,7 +10,14 @@ import lombok.Data;
  */
 @Data
 public class AcsInfo {
-    private int teamId;
-
-    private int acsId;
+    private Integer acsId;
+    private String name;
+    private String ip;
+    private double latitude;
+    private double longitude;
+    private int port;
+    private int unitTwo;
+    private int unitThree;
+    private int deviceType;
+    private boolean offline;
 }
