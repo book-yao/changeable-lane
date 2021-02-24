@@ -9,6 +9,8 @@ import lombok.Data;
 @Data
 public class TrafficScreenScheme {
 
+    private int id;
+
     /**
      * 中控设备编号
      */

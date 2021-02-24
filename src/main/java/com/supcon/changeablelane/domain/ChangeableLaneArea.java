@@ -11,9 +11,9 @@ import java.util.List;
 @Data
 public class ChangeableLaneArea {
 
-    private Integer teamId;
+    private Integer areaId;
 
-    private String teamName;
+    private String areaName;
 
     private String rings;
 

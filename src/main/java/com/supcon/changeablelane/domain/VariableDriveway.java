@@ -12,5 +12,28 @@ public class VariableDriveway {
     private int vlcId;
 
     private int vlcName;
+    private int devType;
+
+    private int entranceId;
+
+    private String ip;
+
+    private double latitude;
+
+    private double longitude;
+
+    private String name;
+
+    private int port;
+
+    private  String primaryUnit;
+
+    private String screen;
+
+    private int intersectionId;
+
+    private int unitThree;
+
+    private int unitTwo;
 
 }

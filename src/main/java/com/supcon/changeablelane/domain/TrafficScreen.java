@@ -2,8 +2,6 @@ package com.supcon.changeablelane.domain;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 /**
  * 交通诱导屏
  * @Author caowenbo
@@ -19,23 +17,23 @@ public class TrafficScreen {
 
     private String deviceName;
 
-    private int deviceStatus;
+    /**
+     * 道路编码
+     */
+    private String roadCode;
+    /**
+     * 路段编码
+     */
+    private String edgeCode;
 
-    private LocalDateTime endTime;
-
+    /**
+     * 地址
+     */
     private String ipAddress;
-
-    private int manufacturer;
-
-    private String picName;
 
     private int port;
 
-    private int screenType;
+    private Double longi;
 
-    private LocalDateTime setTime;
-
-    private int timerIsok;
-
-    private int timerState;
+    private Double lati;
 }

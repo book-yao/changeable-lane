@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class ChangeableLaneLock {
     private int id;
 
-    private int teamId;
+    private int areaId;
 
     private LocalDateTime startTime;
 
