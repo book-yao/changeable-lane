@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supcon.changeablelane.mapper.ChangeableLaneLockMapper">
+
+    <resultMap id="changeLaneLock"
+               type="com.supcon.changeablelane.domain.ChangeableLaneLock">
+        <result property="id" column="id"/>
+        <result property="areaId" column="area_id"/>
+        <result property="startTime" column="start_time"/>
+        <result property="lockHour" column="lock_hour"/>
+        <result property="lockMinute" column="lock_minute"/>
+        <result property="schemeId" column="scheme_id"/>
+    </resultMap>
+
+    <select id="selectLastLockByAreaId" resultMap="changeLaneLock" parameterType="int">
+        SELECT * from t_changeable_lane_lock where area_id = #{areaId} order by start_time desc limit 1;
+    </select>
+
+    <delete id="deleteChangeableLaneLockByAreaId">
+        DELETE
+        FROM
+            t_changeable_lane_lock
+        WHERE
+            area_id = #{areaId}
+    </delete>
+
+    <insert id="insertChangeableLaneLock" parameterType="com.supcon.changeablelane.domain.ChangeableLaneLock">
+        INSERT INTO `t_changeable_lane_lock` (
+            `area_id`,
+            `start_time`,
+            `lock_hour`,
+            `lock_minute`,
+            `scheme_id`,
+            `create_time`
+        )
+        VALUES
+            (
+                #{areaId},
+                #{startTime},
+                #{lockHour},
+                #{lockMinute},
+                #{schemeId},
+                now()
+            )
+    </insert>
+</mapper>

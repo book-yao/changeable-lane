@@ -1,10 +1,10 @@
 spring:
   # 数据库配置
   datasource:
-    url: jdbc:mysql://10.10.15.146:3306/citybrain?characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+    url: jdbc:mysql://10.10.15.146:3306/changeable_lane_coordination?characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&allowMultiQueries=true
     username: root
     password: supconit
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 100
       validation-timeout: 3000

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supcon.changeablelane.mapper.ChangeableLaneAreaMapper">
+
+    <resultMap id="areas"
+               type="com.supcon.changeablelane.domain.ChangeableLaneArea">
+        <result property="areaId" column="id"/>
+        <result property="areaName" column="area_name"/>
+        <result property="rings" column="rings"/>
+    </resultMap>
+
+    <select id="allAreas" resultMap="areas">
+        SELECT * from t_changeable_lane_area;
+    </select>
+
+</mapper>

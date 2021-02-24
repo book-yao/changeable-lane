@@ -11,7 +11,6 @@ import lombok.Data;
 public class VariableDriveway {
     private int vlcId;
 
-    private int vlcName;
     private int devType;
 
     private int entranceId;

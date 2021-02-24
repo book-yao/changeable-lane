@@ -2,7 +2,9 @@ package com.supcon.changeablelane.domain;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author caowenbo
@@ -28,4 +30,23 @@ public class ChangeableLaneArea {
     private List<TrafficScreen> trafficScreens;
 
     private List<Scheme> schemes;
+
+    public void handlerStatus(ChangeableLaneLock changeableLaneLock) {
+        if(Objects.isNull(changeableLaneLock)
+                ||Objects.isNull(changeableLaneLock.getStartTime())){
+            this.setStatus(2);
+        }
+        LocalDateTime startTime = changeableLaneLock.getStartTime();
+        if(Objects.nonNull(changeableLaneLock.getLockHour())){
+            startTime = startTime.plusHours(changeableLaneLock.getLockHour());
+        }
+        if(Objects.nonNull(changeableLaneLock.getLockMinute())){
+            startTime = startTime.plusHours(changeableLaneLock.getLockHour());
+        }
+        if(LocalDateTime.now().isBefore(startTime)){
+            this.setStatus(1);
+        }else {
+            this.setStatus(2);
+        }
+    }
 }

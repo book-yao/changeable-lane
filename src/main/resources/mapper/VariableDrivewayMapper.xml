@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supcon.changeablelane.mapper.VariableDrivewayMapper">
+    <resultMap id="acs"
+               type="com.supcon.changeablelane.domain.VariableDriveway">
+        <result property="vlcId" column="id"/>
+        <result property="name" column="name"/>
+        <result property="latitude" column="latitude"/>
+        <result property="longitude" column="longitude"/>
+        <result property="devType" column="dev_type"/>
+        <result property="entranceId" column="entrance_id"/>
+        <result property="ip" column="ip"/>
+        <result property="port" column="port"/>
+        <result property="primaryUnit" column="primary_unit"/>
+        <result property="screen" column="screen"/>
+        <result property="intersectionId" column="intersection_id"/>
+        <result property="unitThree" column="unit_three"/>
+        <result property="unitTwo" column="unit_two"/>
+    </resultMap>
+
+    <select id="selectVariableDrivewayByAreaId" resultMap="acs">
+        SELECT
+            t2.*
+        FROM
+            t_relation_area_variable_driveway t1
+        LEFT JOIN t_variable_driveway t2 ON t1.variable_driveway_id = t2.id
+        WHERE
+            t1.area_id = #{areaId};
+    </select>
+
+</mapper>

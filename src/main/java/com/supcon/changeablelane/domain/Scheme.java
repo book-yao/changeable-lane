@@ -14,18 +14,20 @@ public class Scheme {
 
     private int schemeId;
 
+    private String name;
+
     /**
      * 可变车道牌方案
      */
-    private List<VariableLaneDTO> variableLaneDTOSchemes;
+    private List<VariableLaneControl> variableLaneDTOSchemes;
 
     /**
      * 诱导屏方案信息
      */
     private List<TrafficScreenScheme> trafficScreenSchemes;
 
-    /**
-     * 信号机方案
-     */
-    //private List<AcsOutput> acsOutputs;
+//    /**
+//     * 信号机方案
+//     */
+//    private List<AcsOutput> acsOutputs;
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supcon.changeablelane.mapper.AcsMapper">
+
+    <resultMap id="acs"
+               type="com.supcon.changeablelane.domain.AcsInfo">
+        <result property="acsId" column="acs_id"/>
+        <result property="name" column="name"/>
+        <result property="latitude" column="latitude"/>
+        <result property="longitude" column="longitude"/>
+    </resultMap>
+
+    <select id="selectAcsByAreaId" resultMap="acs">
+        SELECT
+            t2.*
+        FROM
+            t_relation_area_acs t1
+        LEFT JOIN t_acs t2 ON t1.acs_id = t2.acs_id
+        WHERE
+            t1.area_id = #{areaId};
+    </select>
+
+</mapper>

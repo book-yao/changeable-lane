@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supcon.changeablelane.mapper.TrafficScreenMapper">
+
+    <resultMap id="trafficScreen"
+               type="com.supcon.changeablelane.domain.TrafficScreen">
+        <result property="deviceCode" column="device_code"/>
+        <result property="deviceName" column="device_name"/>
+        <result property="roadCode" column="road_code"/>
+        <result property="edgeCode" column="edge_code"/>
+        <result property="longi" column="longi"/>
+        <result property="lati" column="lati"/>
+    </resultMap>
+
+    <select id="selectTrafficScreenByAreaId" resultMap="trafficScreen">
+        SELECT
+            t2.*
+        FROM
+            t_relation_acs_traffic_screen t1
+        LEFT JOIN t_traffic_screen t2 ON t1.traffic_screen_id = t2.id
+        WHERE
+            t1.area_id = #{areaId};
+    </select>
+
+    <select id="selectTrafficScreen" resultMap="trafficScreen">
+        select * from t_traffic_screen;
+    </select>
+
+</mapper>
