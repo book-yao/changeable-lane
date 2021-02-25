@@ -11,23 +11,15 @@ import java.util.List;
  */
 @Data
 public class Scheme {
+    private int id;
 
     private int schemeId;
 
     private String name;
 
-    /**
-     * 可变车道牌方案
-     */
-    private List<VariableLaneControl> variableLaneDTOSchemes;
+    private int areaId;
 
-    /**
-     * 诱导屏方案信息
-     */
-    private List<TrafficScreenScheme> trafficScreenSchemes;
 
-//    /**
-//     * 信号机方案
-//     */
-//    private List<AcsOutput> acsOutputs;
+    List<ChangeableLaneScheme> changeableLaneSchemes;
+
 }

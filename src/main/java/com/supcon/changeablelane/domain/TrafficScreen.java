@@ -1,5 +1,6 @@
 package com.supcon.changeablelane.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 /**
@@ -33,7 +34,30 @@ public class TrafficScreen {
 
     private int port;
 
+    @JsonIgnore
     private Double longi;
 
+    @JsonIgnore
     private Double lati;
+
+    private int acsId;
+
+    private int intersectionId;
+
+    private int entranceId;
+
+
+    private Double longitude;
+
+    private Double latitude;
+
+    public void setLongi(Double longi) {
+        this.longi = longi;
+        this.longitude = longi;
+    }
+
+    public void setLati(Double lati) {
+        this.lati = lati;
+        this.latitude = lati;
+    }
 }

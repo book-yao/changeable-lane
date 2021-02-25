@@ -10,6 +10,9 @@
         <result property="edgeCode" column="edge_code"/>
         <result property="longi" column="longi"/>
         <result property="lati" column="lati"/>
+        <result property="acsId" column="acs_id"/>
+        <result property="intersectionId" column="intersection_id"/>
+        <result property="entranceId" column="entrance_id"/>
     </resultMap>
 
     <select id="selectTrafficScreenByAreaId" resultMap="trafficScreen">

@@ -19,7 +19,7 @@ spring:
 #        instance:
 #          service-base-url: http://33.94.247.151:9030
   application:
-    name: changeable-lane
+    name: changeable-lane-associdinate
   main:
     allow-bean-definition-overriding: true
 
@@ -50,7 +50,7 @@ mybatis:
     map-underscore-to-camel-case: true
     cache-enabled: true
     lazy-load-trigger-methods: "toString()"
-  type-handlers-package: com.supconit.suptap.common.typehandler.handler
+  type-handlers-package:
 
   #log-impl: SLF4J
 
@@ -76,5 +76,9 @@ url:
   variableLaneUrl: http://10.10.15.146:9021/api/v1
   aiEffectAssessmentUrl: http://10.10.15.146:9024/api/v1
   generalPlatformUrl: http://10.10.77.111:8087
-  osUrl: http://10.10.20.17:8087
+  trafficScreenUrl: http://10.10.77.111:8087
+
+param:
+  acss: 200048,200047,200049
+
 

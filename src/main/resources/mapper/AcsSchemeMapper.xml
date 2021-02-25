@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supcon.changeablelane.mapper.AcsSchemeMapper">
+
+    <resultMap id="acs"
+               type="com.supcon.changeablelane.domain.scheme.AcsSchemeInfo">
+        <result property="acsId" column="acs_id"/>
+        <result property="acsOutputText" column="acs_output_text"/>
+        <result property="id" column="id"/>
+        <result property="schemeId" column="scheme_id"/>
+    </resultMap>
+
+    <select id="selectAcsSchemeByAcsIdAndSchemeId" resultMap="acs">
+        SELECT
+            *
+        FROM
+            t_acs_output
+        WHERE
+            acs_id = #{acsId}
+        AND scheme_id = #{schemeId}
+    </select>
+
+    <insert id="insertAcsScheme" parameterType="com.supcon.changeablelane.domain.scheme.AcsSchemeInfo">
+        INSERT INTO `t_acs_output` (
+            `scheme_id`,
+            `acs_output_text`,
+            `acs_id`
+        )
+        VALUES
+            (#{schemeId}, #{acsSchemeInfo}, #{acsId})
+    </insert>
+
+</mapper>

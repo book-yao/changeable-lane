@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supcon.changeablelane.mapper.VariableLaneSchemeMapper">
+
+    <resultMap id="acs"
+               type="com.supcon.changeablelane.domain.VariableLaneDTO">
+        <result property="id" column="id"/>
+        <result property="schemeId" column="scheme_id"/>
+        <result property="acsId" column="acs_id"/>
+        <result property="entranceId" column="entrance_id"/>
+        <result property="mode" column="mode"/>
+        <result property="delayTime" column="delay_time"/>
+        <result property="lockTime" column="lock_time"/>
+        <result property="intersectionId" column="intersection_id"/>
+        <result property="laneId" column="lane_id"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <insert id="insertVariableLaneScheme">
+        insert into t_variable_lane_scheme
+        (`scheme_id`,
+        `acs_id`,
+        `entrance_id`,
+        `intersection_id`
+        `mode`,
+        `delay_time`,
+        `lock_time`,
+        `lane_id`,
+        `state`)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+        (
+        #{item.schemeId},
+        #{item.acsId},
+        #{item.entranceId},
+        #{item.intersectionId}
+        #{item.mode},
+        #{item.delayTime},
+        #{item.lockTime},
+        #{item.laneId},
+        #{item.state}
+        )
+    </foreach>
+    </insert>
+
+    <select id="selectVariableLaneSchemeBySchemeIdAndAcsId" resultMap="acs">
+        select * from t_variable_lane_scheme where acs_id = #{acsId} and scheme_id =#{schemeId};
+    </select>
+
+</mapper>

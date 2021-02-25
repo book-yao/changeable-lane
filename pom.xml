@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.supcon</groupId>
-    <artifactId>changeable-lane</artifactId>
+    <artifactId>changeable-lane-assodination</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>changeable-lane</name>
     <description>ChangeableLane project for Spring Boot</description>
@@ -76,6 +76,11 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
             <version>2.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>

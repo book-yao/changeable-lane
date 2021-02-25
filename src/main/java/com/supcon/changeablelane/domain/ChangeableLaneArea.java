@@ -1,5 +1,6 @@
 package com.supcon.changeablelane.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -25,10 +26,13 @@ public class ChangeableLaneArea {
     /**
      * 信号机列表
      */
+    @JsonIgnore
     private List<AcsInfo> acsInfo;
 
+    @JsonIgnore
     private List<TrafficScreen> trafficScreens;
 
+    @JsonIgnore
     private List<Scheme> schemes;
 
     public void handlerStatus(ChangeableLaneLock changeableLaneLock) {

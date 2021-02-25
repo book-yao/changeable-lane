@@ -1,10 +1,7 @@
 package com.supcon.changeablelane.controller;
 
 import com.supcon.changeablelane.constant.StatusCode;
-import com.supcon.changeablelane.domain.ChangeableLaneArea;
-import com.supcon.changeablelane.domain.ChangeableLaneLock;
-import com.supcon.changeablelane.domain.Devices;
-import com.supcon.changeablelane.domain.TrafficScreen;
+import com.supcon.changeablelane.domain.*;
 import com.supcon.changeablelane.dto.ChangeableLaneLockDTO;
 import com.supcon.changeablelane.dto.ResponseDTO;
 import com.supcon.changeablelane.mapper.TrafficScreenMapper;
@@ -13,10 +10,15 @@ import com.supcon.changeablelane.service.ChangeableLaneLockService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
+import io.swagger.models.auth.In;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,7 +31,7 @@ import java.util.Objects;
 @RestController
 @Api(
         value = "AcsController",
-        tags = {"信号机接口"})
+        tags = {"可变车道协同体接口"})
 public class ChangeableLaneAreaController {
 
     @Autowired
@@ -37,6 +39,13 @@ public class ChangeableLaneAreaController {
 
     @Autowired
     private ChangeableLaneLockService changeableLaneLockService;
+
+    /**
+     * 数据交换url
+     */
+    @Value("${param.acss}")
+    private String acss;
+
 
     @GetMapping(value = "areas")
     @ApiOperation(value = "获取所有可变车道协同体列表")
@@ -72,12 +81,34 @@ public class ChangeableLaneAreaController {
         return ResponseDTO.ofSuccess();
     }
 
-    @GetMapping(value = "/variableDriveways")
+    @GetMapping(value = "/trafficSrceen")
     @ApiOperation(value = "获取所有的诱导屏")
     public ResponseDTO<List<TrafficScreen>> variableDriveways(){
 
         List<TrafficScreen> list = changeableLaneAreaService.getAllVariableDriveways();
         return ResponseDTO.ofSuccess(list);
+    }
+
+
+    @GetMapping(value = "/{areaId}/{schemeId}")
+    @ApiOperation(value = "获取指定协同体指定方案信息")
+    public ResponseDTO<Scheme> getScheme(@PathVariable("areaId")Integer areaId,
+                                         @PathVariable("schemeId")Integer schemeId){
+
+        Scheme scheme = changeableLaneLockService.fillScheme(areaId,schemeId);
+        return ResponseDTO.ofSuccess(scheme);
+    }
+
+    @GetMapping(value = "/acss")
+    @ApiOperation(value = "获取指定信号机")
+    public ResponseDTO<List<Integer>> acss(){
+        List<Integer> acs = new ArrayList<>();
+        if(Objects.nonNull(acss)){
+            for(String item:acss.split(",")){
+                acs.add(Integer.parseInt(item));
+            }
+        }
+        return ResponseDTO.ofSuccess(acs);
     }
 
 

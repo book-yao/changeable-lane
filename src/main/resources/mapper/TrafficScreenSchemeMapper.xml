@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.supcon.changeablelane.mapper.TrafficScreenSchemeMapper">
+
+    <resultMap id="acs"
+               type="com.supcon.changeablelane.domain.TrafficScreenScheme">
+        <result property="deviceCode" column="device_code"/>
+        <result property="messageOne" column="message_one"/>
+        <result property="messageTwo" column="message_two"/>
+        <result property="color" column="color"/>
+        <result property="isSend" column="is_send"/>
+        <result property="entranceId" column="entrance_id"/>
+        <result property="intersectionId" column="intersection_id"/>
+        <result property="remark" column="remark"/>
+        <result property="acsId" column="acs_id"/>
+        <result property="remark" column="remark"/>
+        <result property="schemeId" column="scheme_id"/>
+    </resultMap>
+
+    <select id="selectTrafficScreenSchemeByAreaId" resultMap="acs">
+        SELECT
+            *
+        FROM
+            t_traffic_screen_scheme
+        WHERE
+            acs_id = #{acsId} and scheme_id = #{schemeId};
+    </select>
+
+</mapper>

@@ -36,5 +36,13 @@ public class TrafficScreenScheme {
      */
     private int isSend;
 
+    private int entranceId;
+
+    private int acsId;
+
+    private int schemeId;
+
+    private int intersectionId;
+
     private String remark;
 }
