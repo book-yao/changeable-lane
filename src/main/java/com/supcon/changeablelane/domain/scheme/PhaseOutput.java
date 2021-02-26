@@ -29,7 +29,7 @@ public class PhaseOutput {
   @JsonIgnore
   private String loadTime;
   private Integer acsOutputId;
-  @JsonIgnore
+//  @JsonIgnore
   private int totalTime;
 
   /**
@@ -55,12 +55,12 @@ public class PhaseOutput {
     this.movements = movements;
   }
 
-  @JsonGetter("movementSchemes")
+
   public List<MovementScheme> getMovementSchemes() {
     return movements;
   }
 
-  @JsonSetter("movementSchemes")
+
   public void setMovementSchemes(List<MovementScheme> movements) {
     this.movements = movements;
   }

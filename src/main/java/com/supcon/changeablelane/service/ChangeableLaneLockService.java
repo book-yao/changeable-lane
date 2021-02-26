@@ -105,9 +105,13 @@ public class ChangeableLaneLockService {
                         variableLaneClient.getVariableLaneState(intersectionId)
                                 .ifPresent(variableLaneStatesDTO -> {
                                     if(Objects.nonNull(variableLaneStatesDTO)&&!CollectionUtils.isEmpty(variableLaneStatesDTO.getLaneStates())){
-                                        changeableLaneScheme.setVariableLaneSchemes(
-                                                variableLaneStatesDTO.convertToVariableLaneControlByNoChangeLane(
-                                                        item.getAcsId()).getVariableLaneList());
+                                        List<VariableLaneDTO> variableLaneList = variableLaneStatesDTO.convertToVariableLaneControlByNoChangeLane(
+                                                item.getAcsId()).getVariableLaneList();
+                                        variableLaneList.stream()
+                                                .forEach(variableLaneDTO->{
+                                                    variableLaneDTO.setIntersectionId(intersectionId);
+                                                });
+                                        changeableLaneScheme.setVariableLaneSchemes(variableLaneList);
                                     }
 
                                 });
