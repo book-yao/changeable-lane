@@ -5,6 +5,7 @@ import com.supcon.changeablelane.client.VariableLaneClient;
 import com.supcon.changeablelane.client.dto.TimingSchemeDTO;
 import com.supcon.changeablelane.client.dto.TimingSchemesDTO;
 import com.supcon.changeablelane.domain.VariableLaneDTO;
+import com.supcon.changeablelane.mapper.SchemeMapper;
 import com.supcon.changeablelane.mapper.VariableLaneSchemeMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +35,16 @@ public class CreateDataService {
     @Value("#{${param.acsId-intersectionId}}")
     private Map<Integer,Integer> acsIdIntersectionIdMap;
 
+    @Resource
+    private SchemeMapper schemeMapper;
+
     public void createTimingScheme(Integer acsId, Integer index, Integer schemeId) {
         List<VariableLaneDTO> variableLaneDTOS = new ArrayList<>();
-        variableLaneClient.getTimingSchemeByAcsId(acsId)
+        Integer intersectionId = acsIdIntersectionIdMap.get(acsId);
+        if(java.util.Objects.isNull(intersectionId)){
+            return;
+        }
+        variableLaneClient.getTimingSchemeByAcsId(intersectionId)
                 .ifPresent(
                 timingSchemesDTO -> {
                     List<TimingSchemeDTO> timingSchemes = timingSchemesDTO.getTimingSchemes();

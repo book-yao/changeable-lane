@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 public class OutputSchemesDTO {
@@ -20,7 +21,12 @@ public class OutputSchemesDTO {
     public OutputSchemesDTO() {
     }
 
-    public OutputSchemesDTO(AcsOutput acsOutput, Integer transitionalRunTime) {
+    public OutputSchemesDTO(Integer acsId,AcsOutput acsOutput, Integer transitionalRunTime) {
+        if(Objects.isNull(acsOutput)){
+            acsOutput = new AcsOutput();
+            acsOutput.setAcsId(acsId);
+            acsOutput.resetSingle();
+        }
         // 不启用相位差
         acsOutput.setOffsetValidFlag(0);
         acsOutput.setCoordinateMode(1);

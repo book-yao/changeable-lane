@@ -111,5 +111,11 @@ public class ChangeableLaneAreaController {
         return ResponseDTO.ofSuccess(acs);
     }
 
+    @GetMapping(value = "/lastRunningScheme/{areaId}")
+    @ApiOperation(value = "获取区域历史运行记录")
+    public ResponseDTO<Scheme> getLastScheme(@PathVariable("areaId")Integer areaId){
+        Scheme scheme= changeableLaneAreaService.getLastScheme(areaId);
+        return ResponseDTO.ofSuccess(scheme);
+    }
 
 }

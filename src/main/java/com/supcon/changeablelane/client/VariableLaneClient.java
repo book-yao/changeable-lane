@@ -2,6 +2,7 @@ package com.supcon.changeablelane.client;
 
 import com.alibaba.fastjson.JSONObject;
 import com.supcon.changeablelane.client.dto.TimingSchemesDTO;
+import com.supcon.changeablelane.client.dto.VariableLaneStatesDTO;
 import com.supcon.changeablelane.dto.OutputSchemesDTO;
 import com.supcon.changeablelane.dto.VariableLaneControl;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,11 @@ public class VariableLaneClient {
      */
     @Value("${url.dataExchangeUrl}")
     private String exchangeUrl;
+
+    /**
+     * 可变车道状态接口
+     */
+    private static final String VARIABLE_LANE_STATE = "/variableLane/{acsId}";
 
     /**
      * 可变车道控制下发
@@ -69,6 +75,33 @@ public class VariableLaneClient {
             return Optional.empty();
         }
     }
+
+    /**
+     * 获取可变车道状态信息
+     *
+     * @param acsId
+     * @return
+     */
+    public Optional<VariableLaneStatesDTO> getVariableLaneState(Integer acsId) {
+        String url = exchangeUrl + VARIABLE_LANE_STATE;
+        try {
+            VariableLaneStatesDTO body =
+                    restTemplate
+                            .exchange(
+                                    url,
+                                    HttpMethod.GET,
+                                    null,
+                                    new ParameterizedTypeReference<VariableLaneStatesDTO>() {
+                                    },
+                                    acsId)
+                            .getBody();
+            return Optional.ofNullable(body);
+        } catch (Exception e) {
+            log.error("获取可变车道状态信息失败,cause:{}", ExceptionUtils.getStackTrace(e));
+            return Optional.empty();
+        }
+    }
+
 
     /**
      * 下发可变车道控制信息

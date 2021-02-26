@@ -1,12 +1,16 @@
 package com.supcon.changeablelane.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.supcon.changeablelane.domain.*;
+import com.supcon.changeablelane.domain.scheme.PhaseScheme;
 import com.supcon.changeablelane.mapper.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -31,6 +35,9 @@ public class ChangeableLaneAreaService {
 
     @Resource
     private AcsMapper acsMapper;
+
+    @Autowired
+    private ChangeableLaneLockService changeableLaneLockService;
 
     public List<ChangeableLaneArea> areas() {
         List<ChangeableLaneArea> result = changeableLaneAreaMapper.allAreas();
@@ -74,5 +81,14 @@ public class ChangeableLaneAreaService {
 
     public List<TrafficScreen> getAllVariableDriveways() {
         return trafficScreenMapper.selectTrafficScreen();
+    }
+
+    public Scheme getLastScheme(Integer areaId) {
+        String schemeStr = changeableLaneAreaMapper.selectAreaSchemeByAreaId(areaId);
+        if(Objects.isNull(schemeStr)){
+            return changeableLaneLockService.insertRunningSchemeHis(areaId);
+        }
+        JSONObject jsonObject = JSONObject.parseObject(schemeStr);
+        return jsonObject.toJavaObject(Scheme.class);
     }
 }

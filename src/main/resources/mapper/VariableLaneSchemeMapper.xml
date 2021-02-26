@@ -21,7 +21,7 @@
         (`scheme_id`,
         `acs_id`,
         `entrance_id`,
-        `intersection_id`
+        `intersection_id`,
         `mode`,
         `delay_time`,
         `lock_time`,
@@ -33,7 +33,7 @@
         #{item.schemeId},
         #{item.acsId},
         #{item.entranceId},
-        #{item.intersectionId}
+        #{item.intersectionId},
         #{item.mode},
         #{item.delayTime},
         #{item.lockTime},

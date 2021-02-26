@@ -13,4 +13,20 @@
         SELECT * from t_changeable_lane_area;
     </select>
 
+
+    <insert id="insertAreaScheme">
+        insert into t_area_scheme_info (`area_id`,`scheme_info`,`create_time`)
+        values (#{areaId},#{schemeInfo},now())
+
+    </insert>
+
+    <delete id="delteAreaScheme">
+        delete from t_area_scheme_info where area_id = #{areaId}
+    </delete>
+
+
+    <select id="selectAreaSchemeByAreaId" parameterType="int" resultType="java.lang.String">
+        select scheme_info from t_area_scheme_info where area_id = #{areaId} order by create_time desc limit 1;
+    </select>
+
 </mapper>
