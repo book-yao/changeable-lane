@@ -3,19 +3,20 @@ package com.supcon.changeablelane.service;
 import com.supcon.changeablelane.client.TrafficScreenClient;
 import com.supcon.changeablelane.client.VariableLaneClient;
 import com.supcon.changeablelane.domain.*;
+import com.supcon.changeablelane.domain.scheme.AcsOutput;
 import com.supcon.changeablelane.domain.scheme.AcsSchemeInfo;
 import com.supcon.changeablelane.dto.ChangeableLaneLockDTO;
 import com.supcon.changeablelane.dto.OutputSchemesDTO;
 import com.supcon.changeablelane.dto.VariableLaneControl;
 import com.supcon.changeablelane.mapper.*;
 import lombok.extern.slf4j.Slf4j;
-import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -110,7 +111,7 @@ public class ChangeableLaneLockService {
 
     public Scheme fillScheme(Integer areaId, Integer schemeId) {
         List<AcsInfo> acsInfos = acsMapper.selectAcsByAreaId(areaId);
-        Scheme scheme = schemeMapper.selectSchemeByAcsIdAndSchemeId(areaId, schemeId);
+        Scheme scheme = schemeMapper.selectSchemeByAreaIdAndSchemeId(areaId, schemeId);
         List<ChangeableLaneScheme> changeableLaneSchemes = new ArrayList<>();
         acsInfos.stream()
                 .forEach(item->{
@@ -121,8 +122,6 @@ public class ChangeableLaneLockService {
                     if(!CollectionUtils.isEmpty(acsSchemeInfos)){
                         AcsSchemeInfo acsSchemeInfo = acsSchemeInfos.get(0);
                         changeableLaneScheme.setAcsSchemeInfo(acsSchemeInfo);
-                    }else{
-                        //设置单点方案
                     }
                     //获取所有可变车道方案
                     List<VariableLaneDTO> variableLaneDTO = variableLaneSchemeMapper.selectVariableLaneSchemeBySchemeIdAndAcsId(scheme.getId(), item.getAcsId());
@@ -130,6 +129,37 @@ public class ChangeableLaneLockService {
                     //获取所有待转屏方案
                     List<TrafficScreenScheme> trafficScreenSchemes = trafficScreenSchemeMapper.selectTrafficScreenSchemeByAreaId(scheme.getId(), item.getAcsId());
                     changeableLaneScheme.setTrafficScreenSchemes(trafficScreenSchemes);
+                    changeableLaneSchemes.add(changeableLaneScheme);
+                });
+        scheme.setChangeableLaneSchemes(changeableLaneSchemes);
+        return scheme;
+    }
+
+    public Scheme fillSingleScheme(Integer areaId, Integer schemeId) {
+        List<AcsInfo> acsInfos = acsMapper.selectAcsByAreaId(areaId);
+        Scheme scheme = schemeMapper.selectSchemeByAreaIdAndSchemeId(areaId, schemeId);
+        List<ChangeableLaneScheme> changeableLaneSchemes = new ArrayList<>();
+        acsInfos.stream()
+                .forEach(item->{
+                    ChangeableLaneScheme changeableLaneScheme = new ChangeableLaneScheme();
+                    changeableLaneScheme.setAcsId(item.getAcsId());
+                    //获取所有信号机方案
+                    AcsOutput acsOutput = new AcsOutput();
+                    acsOutput.setAcsId(item.getAcsId());
+                    acsOutput.resetSingle();
+                    changeableLaneScheme.setAcsOutputs(acsOutput);
+                    //获取所有可变车道方案
+                    VariableLaneControl variableLaneControl =
+                            VariableLaneControl.builder()
+                                    .acsId(item.getAcsId())
+                                    .variableLaneList(
+                                            Arrays.asList(VariableLaneDTO.builder().mode(4).entranceId(null).build()))
+                                    .build();
+                    changeableLaneScheme.setVariableLaneSchemes(variableLaneControl.getVariableLaneList());
+                    //获取所有待转屏方案
+                    //todo 诱导屏单点方案
+//                    List<TrafficScreenScheme> trafficScreenSchemes = trafficScreenSchemeMapper.selectTrafficScreenSchemeByAreaId(scheme.getId(), item.getAcsId());
+//                    changeableLaneScheme.setTrafficScreenSchemes(trafficScreenSchemes);
                     changeableLaneSchemes.add(changeableLaneScheme);
                 });
         scheme.setChangeableLaneSchemes(changeableLaneSchemes);

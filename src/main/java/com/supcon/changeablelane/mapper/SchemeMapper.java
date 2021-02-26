@@ -10,6 +10,6 @@ import java.util.List;
  * @create 2021/2/24 18:00
  */
 public interface SchemeMapper {
-   Scheme selectSchemeByAcsIdAndSchemeId(@Param(value = "areaId") Integer areaId,
-                                               @Param(value = "schemeId")Integer schemeId);
+   Scheme selectSchemeByAreaIdAndSchemeId(@Param(value = "areaId") Integer areaId,
+                                          @Param(value = "schemeId")Integer schemeId);
 }

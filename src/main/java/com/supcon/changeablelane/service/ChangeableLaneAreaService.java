@@ -3,13 +3,11 @@ package com.supcon.changeablelane.service;
 import com.supcon.changeablelane.domain.*;
 import com.supcon.changeablelane.mapper.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * @Author caowenbo
@@ -66,7 +64,7 @@ public class ChangeableLaneAreaService {
 
     private void handleVariableDriveways(Integer areaId, Devices devices) {
         List<VariableDriveway> variableDriveways = variableDrivewayMapper.selectVariableDrivewayByAreaId(areaId);
-        devices.setVariableDriveways(variableDriveways);
+        devices.setVarLaneCards(variableDriveways);
     }
 
     private void handleTrafficScreens(Integer areaId, Devices devices) {

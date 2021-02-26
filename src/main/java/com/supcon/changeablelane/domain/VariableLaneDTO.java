@@ -19,7 +19,7 @@ public class VariableLaneDTO {
 
   private int acsId;
   /** 进口id */
-  private int entranceId;
+  private Integer entranceId;
   /** 控制模式：1-手动 2-算法 3-定时 4-解锁 */
   private int mode;
   /** 周期开始后经过多少秒开始改变状态 */

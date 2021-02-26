@@ -10,7 +10,7 @@
         <result property="schemeId" column="scheme_id"/>
     </resultMap>
 
-    <select id="selectSchemeByAcsIdAndSchemeId" resultMap="acs">
+    <select id="selectSchemeByAreaIdAndSchemeId" resultMap="acs">
         SELECT
             *
         FROM

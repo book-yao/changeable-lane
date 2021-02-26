@@ -13,7 +13,7 @@ public class Devices {
 
     List<AcsInfo> acsInfos;
 
-    List<VariableDriveway> variableDriveways;
+    List<VariableDriveway> varLaneCards;
 
     List<TrafficScreen> trafficScreens;
 }

@@ -8,12 +8,14 @@ import com.supcon.changeablelane.domain.VariableLaneDTO;
 import com.supcon.changeablelane.mapper.VariableLaneSchemeMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -29,7 +31,8 @@ public class CreateDataService {
 
     @Resource
     private VariableLaneSchemeMapper variableLaneSchemeMapper;
-
+    @Value("#{${param.acsId-intersectionId}}")
+    private Map<Integer,Integer> acsIdIntersectionIdMap;
 
     public void createTimingScheme(Integer acsId, Integer index, Integer schemeId) {
         List<VariableLaneDTO> variableLaneDTOS = new ArrayList<>();
@@ -53,6 +56,9 @@ public class CreateDataService {
                                             variableLaneDTO.setLaneId(laneScheme.getLaneId());
                                             variableLaneDTO.setLockTime(0);
                                             variableLaneDTO.setAcsId(acsId);
+                                            if(java.util.Objects.nonNull(acsIdIntersectionIdMap.get(acsId))){
+                                                variableLaneDTO.setIntersectionId(acsIdIntersectionIdMap.get(acsId));
+                                            }
                                             variableLaneDTO.setMode(2);
                                             variableLaneDTO.setSchemeId(schemeId);
                                             variableLaneDTO.setState(laneScheme.getStatus());
