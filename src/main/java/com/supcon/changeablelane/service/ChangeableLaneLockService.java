@@ -141,7 +141,7 @@ public class ChangeableLaneLockService {
         }else{
             scheme = fillScheme(areaId,schemeId);
         }
-        //获取信号机方案
+        //下发信号机方案
         if(Objects.nonNull(scheme)&&!CollectionUtils.isEmpty(scheme.getChangeableLaneSchemes())){
             scheme.getChangeableLaneSchemes().stream()
                     .forEach(item ->{
