@@ -81,6 +81,16 @@ public class ChangeableLaneAreaController {
         return ResponseDTO.ofSuccess();
     }
 
+    @GetMapping(value = "/{areaId}/lock")
+    @ApiOperation(value = "获取当前锁定方案")
+    public ResponseDTO<ChangeableLaneLock> getLock(
+            @PathVariable("areaId")Integer areaId){
+
+        ChangeableLaneLock changeableLaneLock = changeableLaneLockService.getLock(areaId);
+
+        return ResponseDTO.ofSuccess(changeableLaneLock);
+    }
+
     @GetMapping(value = "/trafficSrceen")
     @ApiOperation(value = "获取所有的诱导屏")
     public ResponseDTO<List<TrafficScreen>> variableDriveways(){
@@ -115,6 +125,13 @@ public class ChangeableLaneAreaController {
     @ApiOperation(value = "获取区域历史运行记录")
     public ResponseDTO<Scheme> getLastScheme(@PathVariable("areaId")Integer areaId){
         Scheme scheme= changeableLaneAreaService.getLastScheme(areaId);
+        return ResponseDTO.ofSuccess(scheme);
+    }
+
+    @GetMapping(value = "/runningScheme/{areaId}")
+    @ApiOperation(value = "获取区域正在运行的方案信息")
+    public ResponseDTO<Scheme> getRunningScheme(@PathVariable("areaId")Integer areaId){
+        Scheme scheme= changeableLaneAreaService.getRunningScheme(areaId);
         return ResponseDTO.ofSuccess(scheme);
     }
 

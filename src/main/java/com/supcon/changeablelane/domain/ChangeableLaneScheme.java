@@ -7,6 +7,8 @@ import com.supcon.changeablelane.domain.scheme.PhaseScheme;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author caowenbo
@@ -15,6 +17,8 @@ import java.util.List;
 @Data
 public class ChangeableLaneScheme {
     private Integer acsId;
+
+    private String acsName;
 
     private List<VariableLaneDTO> variableLaneSchemes;
 
@@ -31,4 +35,9 @@ public class ChangeableLaneScheme {
         this.setAcsOutputs(phaseScheme.dto2AcsOutput());
     }
 
+    public List<VariableLaneDTO> getVariableLaneSchemesByType(Integer type) {
+        return variableLaneSchemes.stream()
+                .filter(item-> Objects.equals(item.getType(),type))
+                .collect(Collectors.toList());
+    }
 }

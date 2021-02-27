@@ -81,7 +81,7 @@ public class PhaseScheme implements Serializable {
                 this.getMovementSchemes().stream()
                         .filter(
                                 movementScheme ->
-                                        movementScheme.getMovementID() > maxMovementNum
+                                        movementScheme.getMovementId() > maxMovementNum
                                                 || movementScheme.isTurnOff()
                                                 || movementScheme.isYellowFlash()
                                                 //                        || movementScheme.isDelay()
@@ -92,7 +92,7 @@ public class PhaseScheme implements Serializable {
                 this.getMovementSchemes().stream()
                         .filter(
                                 movementScheme ->
-                                        !(movementScheme.getMovementID() > maxMovementNum
+                                        !(movementScheme.getMovementId() > maxMovementNum
                                                 || movementScheme.isTurnOff()
                                                 || movementScheme.isYellowFlash()
                                                 //                        || movementScheme.isDelay()

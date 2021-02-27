@@ -86,12 +86,13 @@ public class CreateDataController {
     public ResponseDTO<Void> timingScheme(Integer areaId,
                                           Integer acsId,
                                           Integer index,
-                                          Integer schemeId){
+                                          Integer schemeId,
+                                          Integer type){
         Scheme scheme = schemeMapper.selectSchemeByAreaIdAndSchemeId(areaId, schemeId);
         if(Objects.isNull(scheme)){
             return ResponseDTO.ofError(StatusCode.CODE_SOURCE_NOT_FOUND,"schemeId不存在。");
         }
-        createDataService.createTimingScheme(acsId,index,scheme.getSchemeId());
+        createDataService.createTimingScheme(acsId,index,scheme.getSchemeId(),type);
         return ResponseDTO.ofSuccess();
     }
 

@@ -38,7 +38,7 @@ public class CreateDataService {
     @Resource
     private SchemeMapper schemeMapper;
 
-    public void createTimingScheme(Integer acsId, Integer index, Integer schemeId) {
+    public void createTimingScheme(Integer acsId, Integer index, Integer schemeId,Integer type) {
         List<VariableLaneDTO> variableLaneDTOS = new ArrayList<>();
         Integer intersectionId = acsIdIntersectionIdMap.get(acsId);
         if(java.util.Objects.isNull(intersectionId)){
@@ -63,6 +63,7 @@ public class CreateDataService {
                                             variableLaneDTO.setEntranceId(laneScheme.getEntranceId());
                                             variableLaneDTO.setLaneId(laneScheme.getLaneId());
                                             variableLaneDTO.setLockTime(0);
+                                            variableLaneDTO.setType(type);
                                             variableLaneDTO.setAcsId(acsId);
                                             if(java.util.Objects.nonNull(acsIdIntersectionIdMap.get(acsId))){
                                                 variableLaneDTO.setIntersectionId(acsIdIntersectionIdMap.get(acsId));

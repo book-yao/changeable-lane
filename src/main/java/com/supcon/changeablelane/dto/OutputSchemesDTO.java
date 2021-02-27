@@ -34,9 +34,9 @@ public class OutputSchemesDTO {
         acsOutput.setLoadTime(new Date());
         Output output = new Output();
         output.setAcsOutputs(Arrays.asList(acsOutput));
-        output.setKeyAcsID(acsOutput.getAcsID());
+        output.setKeyAcsID(acsOutput.getAcsId());
         output.setStatusCode(2);
-        output.setSubAreaID(acsOutput.getAcsID());
+        output.setSubAreaID(acsOutput.getAcsId());
         output.setLockTime(transitionalRunTime);
         output.setSchemeSource(SchemeSourceEnum.SUPCONIT);
         output.setLoadTime(

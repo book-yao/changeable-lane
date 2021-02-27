@@ -30,4 +30,6 @@ public class VariableLaneDTO {
   private Integer laneId;
   /** 可变车道当前车道状态: 1-左 2-直 3-右 */
   private Integer state;
+
+  private Integer type;
 }

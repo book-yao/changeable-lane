@@ -1,5 +1,6 @@
 package com.supcon.changeablelane.domain.scheme;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Data;
 
@@ -41,5 +42,10 @@ public class MovementScheme {
   @JsonSetter("movementId")
   public void setMovement(Integer movementId) {
     this.movementID = movementId;
+  }
+
+  @JsonGetter("movementId")
+  public Integer getMovementId() {
+    return this.movementID;
   }
 }

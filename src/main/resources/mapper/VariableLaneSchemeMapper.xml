@@ -26,7 +26,8 @@
         `delay_time`,
         `lock_time`,
         `lane_id`,
-        `state`)
+        `state`,
+        `type`)
         values
         <foreach collection="list" item="item" index="index" separator=",">
         (
@@ -38,7 +39,8 @@
         #{item.delayTime},
         #{item.lockTime},
         #{item.laneId},
-        #{item.state}
+        #{item.state},
+        #{item.type}
         )
     </foreach>
     </insert>

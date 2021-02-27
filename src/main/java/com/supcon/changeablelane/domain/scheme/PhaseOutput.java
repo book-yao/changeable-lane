@@ -55,16 +55,6 @@ public class PhaseOutput {
     this.movements = movements;
   }
 
-
-  public List<MovementScheme> getMovementSchemes() {
-    return movements;
-  }
-
-
-  public void setMovementSchemes(List<MovementScheme> movements) {
-    this.movements = movements;
-  }
-
   /** 设置总的时间 */
   public void setTotalTime() {
     this.totalTime = greenTime + yellowTime + redTime;

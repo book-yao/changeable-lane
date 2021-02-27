@@ -1,10 +1,7 @@
 package com.supcon.changeablelane.domain.scheme;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.*;
 import com.supcon.changeablelane.constant.AlgorithmModeEnum;
 import com.supcon.changeablelane.utils.UUIDUtil;
 import lombok.Data;
@@ -74,6 +71,11 @@ public class AcsOutput {
     public AcsOutput() {
     }
 
+    @JsonGetter("acsId")
+    public Integer getAcsId() {
+        return acsID;
+    }
+
     public AcsOutput(Integer acsId) {
         this.acsID = acsId;
     }
@@ -128,7 +130,7 @@ public class AcsOutput {
         int n = phaseCount / 2;
         List<PhaseOutput> phaseOutputs = this.getPhaseOutputs();
         for (int i = n; i < phaseCount; i++) {
-            List<MovementScheme> movementSchemes = phaseOutputs.get(i - n).getMovementSchemes();
+            List<MovementScheme> movementSchemes = phaseOutputs.get(i - n).getMovements();
             List<MovementScheme> newMovements = new ArrayList<>();
             if (movementSchemes != null) {
                 movementSchemes.forEach(
@@ -137,7 +139,7 @@ public class AcsOutput {
                             BeanUtils.copyProperties(movementScheme, movement);
                             newMovements.add(movement);
                         });
-                phaseOutputs.get(i).setMovementSchemes(newMovements);
+                phaseOutputs.get(i).setMovements(newMovements);
             }
         }
     }
@@ -210,7 +212,7 @@ public class AcsOutput {
                             if (movementSchemes == null) {
                                 return IntStream.empty();
                             }
-                            return movementSchemes.stream().mapToInt(MovementScheme::getMovementID);
+                            return movementSchemes.stream().mapToInt(MovementScheme::getMovementId);
                         })
                 .boxed()
                 .collect(Collectors.toList());
@@ -232,7 +234,7 @@ public class AcsOutput {
                             }
                             StringBuffer stringBuffer = new StringBuffer();
                             movementSchemes.stream()
-                                    .mapToInt(MovementScheme::getMovementID)
+                                    .mapToInt(MovementScheme::getMovementId)
                                     .forEach(i -> stringBuffer.append(i).append(","));
                             if (stringBuffer.length() > 0) {
                                 stringBuffer.deleteCharAt(stringBuffer.length() - 1);

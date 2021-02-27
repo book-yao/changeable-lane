@@ -84,7 +84,7 @@ public class DataTrafficClient {
                             new ParameterizedTypeReference<RunningScheme>() {
                             }, acsId, startTimeStr, endTimeStr).getBody();
             log.info(
-                    "匝道 {} | 获取匝道最近一条运行记录 | 开始时间 {} 结束时间 {} url {} | 数据 {}",
+                    "信号机 {} | 获取信号机最近一条运行记录 | 开始时间 {} 结束时间 {} url {} | 数据 {}",
                     acsId,
                     startTimeStr,
                     endTimeStr,
@@ -93,7 +93,7 @@ public class DataTrafficClient {
             return body.runningScheme2AcsOutput();
         } catch (Exception e) {
             log.error(
-                    "匝道 {} 开始时间 {} 结束时间 {}| 获取匝道速度数据失败 | 错误信息:{}",
+                    "信号机 {} 开始时间 {} 结束时间 {}| 获取信号机最近一条运行记录错误 | 错误信息:{}",
                     acsId,
                     startTimeStr,
                     endTimeStr,

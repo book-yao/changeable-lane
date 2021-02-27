@@ -91,4 +91,8 @@ public class ChangeableLaneAreaService {
         JSONObject jsonObject = JSONObject.parseObject(schemeStr);
         return jsonObject.toJavaObject(Scheme.class);
     }
+
+    public Scheme getRunningScheme(Integer areaId) {
+       return changeableLaneLockService.insertRunningSchemeHis(areaId);
+    }
 }
