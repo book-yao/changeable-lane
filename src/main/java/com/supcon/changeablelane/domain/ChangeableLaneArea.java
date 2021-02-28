@@ -39,6 +39,7 @@ public class ChangeableLaneArea {
         if(Objects.isNull(changeableLaneLock)
                 ||Objects.isNull(changeableLaneLock.getStartTime())){
             this.setStatus(2);
+            return;
         }
         LocalDateTime startTime = changeableLaneLock.getStartTime();
         if(Objects.nonNull(changeableLaneLock.getLockHour())){

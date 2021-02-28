@@ -1,6 +1,10 @@
 package com.supcon.changeablelane.domain;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
 
 /**
  * 可变车道牌信息
@@ -9,6 +13,13 @@ import lombok.Data;
  */
 @Data
 public class VariableDriveway {
+
+    private int single;
+
+    private String statesStr;
+
+    private int motorLaneId;
+
     private int vlcId;
 
     private int devType;
@@ -34,5 +45,4 @@ public class VariableDriveway {
     private int unitThree;
 
     private int unitTwo;
-
 }

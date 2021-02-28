@@ -48,4 +48,14 @@ public class MovementScheme {
   public Integer getMovementId() {
     return this.movementID;
   }
+
+  @JsonSetter("movementID")
+  public void setMovementID(Integer movementId) {
+    this.movementID = movementId;
+  }
+
+  @JsonGetter("movementID")
+  public Integer getMovementID() {
+    return this.movementID;
+  }
 }

@@ -65,6 +65,9 @@ logging:
     path: D:\AlgorithmPlatform\suptap-log\${spring.application.name}
 
 url:
+  IntellificOS:
+    login: http://10.10.20.17:13081
+
   dataManagementUrl: http://10.10.15.146:9010/api/v1
   effectAssessmentUrl: http://10.10.15.146:9014/api/v1
   selfAdaptiveAlgorithmUrl: http://10.10.15.146:9013/api/v1
@@ -77,10 +80,26 @@ url:
   aiEffectAssessmentUrl: http://10.10.15.146:9024/api/v1
   generalPlatformUrl: http://10.10.77.111:8087
   trafficScreenUrl: http://10.10.77.111:8087
+  IntellificOSUrl: http://10.10.20.17:8888
+exchange-setting:
+  loginType: body
+  os:
+    user: alg_test
+    pass: 123456
+
 
 param:
-  acss: 200048,200047,200299
+  acss: 200048,200047,200299,200263,200262,200261,200258,200245
 
-  acsId-intersectionId: "{200048: 300014, 200047: 200047,200299: 200299}"
-  keyAcsId: 200048,200047
+  acsId-intersectionId: "{
+                          200048: 300014,
+                          200047: 200047,
+                          200299: 200299,
+                          200263: 200013,
+                          200262: 200011,
+                          200261: 200010,
+                          200258: 200029,
+                          200245: 200008
+                          }"
+  keyAcsId: 200048,200047,200262,200258
 

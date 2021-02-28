@@ -1,9 +1,10 @@
 package com.supcon.changeablelane.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Objects;
 import com.supcon.changeablelane.client.VariableLaneClient;
 import com.supcon.changeablelane.client.dto.TimingSchemeDTO;
-import com.supcon.changeablelane.client.dto.TimingSchemesDTO;
+import com.supcon.changeablelane.domain.VariableDriveway;
 import com.supcon.changeablelane.domain.VariableLaneDTO;
 import com.supcon.changeablelane.mapper.SchemeMapper;
 import com.supcon.changeablelane.mapper.VariableLaneSchemeMapper;
@@ -17,7 +18,6 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @Author caowenbo
@@ -35,8 +35,6 @@ public class CreateDataService {
     @Value("#{${param.acsId-intersectionId}}")
     private Map<Integer,Integer> acsIdIntersectionIdMap;
 
-    @Resource
-    private SchemeMapper schemeMapper;
 
     public void createTimingScheme(Integer acsId, Integer index, Integer schemeId,Integer type) {
         List<VariableLaneDTO> variableLaneDTOS = new ArrayList<>();
@@ -73,10 +71,17 @@ public class CreateDataService {
                                             variableLaneDTO.setState(laneScheme.getStatus());
                                             variableLaneDTOS.add(variableLaneDTO);
                                         });
-                                        });
+                                });
                             });
         if(!CollectionUtils.isEmpty(variableLaneDTOS)){
             variableLaneSchemeMapper.insertVariableLaneScheme(variableLaneDTOS);
+        }
+    }
+
+
+    public void insertIntoVariableLaneCard(List<JSONObject> list) {
+        if(!CollectionUtils.isEmpty(list)){
+            variableLaneSchemeMapper.insertVariableLane(list);
         }
     }
 }

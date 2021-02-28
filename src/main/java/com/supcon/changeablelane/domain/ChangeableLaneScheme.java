@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 public class ChangeableLaneScheme {
     private Integer acsId;
 
+    private Integer intersectionId;
+
     private String acsName;
 
     private List<VariableLaneDTO> variableLaneSchemes;

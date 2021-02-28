@@ -1,6 +1,7 @@
 package com.supcon.changeablelane.mapper;
 
-import com.supcon.changeablelane.domain.AcsInfo;
+import com.alibaba.fastjson.JSONObject;
+import com.supcon.changeablelane.domain.VariableDriveway;
 import com.supcon.changeablelane.domain.VariableLaneDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -21,4 +22,6 @@ public interface VariableLaneSchemeMapper {
 
    List<VariableLaneDTO> selectVariableLaneSchemeBySchemeIdAndAcsId(@Param("schemeId")Integer schemeId,
                                                               @Param("acsId")Integer acsId);
+
+    int insertVariableLane(List<JSONObject> list);
 }

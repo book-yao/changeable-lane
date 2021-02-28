@@ -148,6 +148,10 @@ public class AcsOutput {
         this.acsID = acsID;
     }
 
+    public Integer getAcsID() {
+        return acsID;
+    }
+
     @JsonSetter(value = "acsId")
     public void setAcsId(Integer acsId) {
         this.acsID = acsId;

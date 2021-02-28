@@ -73,7 +73,7 @@ public class ChangeableLaneLockService {
 
         if(Objects.equals(changeableLaneLock.getLockType(),2)){
             changeableLaneLockMapper.deleteChangeableLaneLockByAreaId(areaId);
-            //this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),1);
+            this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),1);
         }else{
             ChangeableLaneLock result = changeableLaneLockMapper.selectLastLockByAreaId(areaId);
             if(Objects.nonNull(result)&&result.isValid()){
@@ -83,7 +83,7 @@ public class ChangeableLaneLockService {
             changeableLaneLock.setAreaId(areaId);
             changeableLaneLockMapper.insertChangeableLaneLock(changeableLaneLock.dto2ChangeableLaneLock(areaId));
             //向信号机下发信号机方案，可变车道牌方案，待转屏方案
-            //this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),2);
+            this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),2);
         }
         return null;
     }
@@ -104,17 +104,18 @@ public class ChangeableLaneLockService {
                     changeableLaneScheme.setAcsOutputs(acsOutput);
                     changeableLaneScheme.setAcsId(item.getAcsId());
                     changeableLaneScheme.setAcsName(item.getName());
+                    changeableLaneScheme.setIntersectionId(acsIdIntersectionIdMap.get(item.getAcsId()));
                     //获取到可变车道牌运行记录
-                    Integer intersectionId = acsIdIntersectionIdMap.get(item.getAcsId());
-                    if(Objects.nonNull(intersectionId)){
-                        variableLaneClient.getVariableLaneState(intersectionId)
+                    //Integer intersectionId = acsIdIntersectionIdMap.get(item.getAcsId());
+                    if(Objects.nonNull(item.getAcsId())){
+                        variableLaneClient.getVariableLaneState(item.getAcsId())
                                 .ifPresent(variableLaneStatesDTO -> {
                                     if(Objects.nonNull(variableLaneStatesDTO)&&!CollectionUtils.isEmpty(variableLaneStatesDTO.getLaneStates())){
                                         List<VariableLaneDTO> variableLaneList = variableLaneStatesDTO.convertToVariableLaneControlByNoChangeLane(
                                                 item.getAcsId()).getVariableLaneList();
                                         variableLaneList.stream()
                                                 .forEach(variableLaneDTO->{
-                                                    variableLaneDTO.setIntersectionId(intersectionId);
+                                                    variableLaneDTO.setIntersectionId(item.getAcsId());
                                                 });
                                         changeableLaneScheme.setVariableLaneSchemes(variableLaneList);
                                     }
@@ -169,14 +170,26 @@ public class ChangeableLaneLockService {
     private boolean downScheme(ChangeableLaneScheme changeableLaneScheme) {
         //下发待转屏方案
         changeableLaneScheme.getTrafficScreenSchemes().stream()
+                .filter(Objects::nonNull)
                 .forEach(item->{
                     trafficScreenClient.sendLedMessage(item);
                 });
 
         //下发可变车道牌临时方案
         List<VariableLaneDTO> variableLaneList = changeableLaneScheme.getVariableLaneSchemesByType(1);
-        VariableLaneControl variableLaneControl = new VariableLaneControl
-                (changeableLaneScheme.getAcsId(),variableLaneList);
+        VariableLaneControl variableLaneControl;
+        if(CollectionUtils.isEmpty(variableLaneList)){
+             variableLaneControl =
+                    VariableLaneControl.builder()
+                            .acsId(changeableLaneScheme.getAcsId())
+                            .variableLaneList(
+                                    Arrays.asList(VariableLaneDTO.builder().mode(4).entranceId(null).build()))
+                            .build();
+        }else{
+             variableLaneControl = new VariableLaneControl
+                    (changeableLaneScheme.getAcsId(),variableLaneList);
+        }
+
         variableLaneClient.variableLaneControlDown(variableLaneControl);
         //判断可变车道牌是否已经
         boolean isSend = judgeSchemeIsSend(changeableLaneScheme.getAcsId(), variableLaneList);
@@ -184,34 +197,48 @@ public class ChangeableLaneLockService {
             log.error("可变车道牌 | {} 下发失败",changeableLaneScheme.getAcsId());
             return false;
         }
+        log.info("可变车道牌 | {}，临时方案下发成功",changeableLaneScheme.getAcsId());
         //下发信号机方案
         variableLaneClient
                 .downOutput(new OutputSchemesDTO(changeableLaneScheme.getAcsId(),changeableLaneScheme.getAcsOutputs(), 12 * 60));
 
         //等待信号方案一个周期
         try {
-            Thread.sleep(changeableLaneScheme.getAcsOutputs().getCycleTime()*1000);
+            log.info("路口 | {}，信号机方案下发成功，进入等待时间，等待（{}）秒",
+                    changeableLaneScheme.getAcsId(),
+                    changeableLaneScheme.getAcsOutputs().getCycleTime());
+            Thread.sleep(1*1000);
         } catch (InterruptedException e) {
             log.error("服务异常：{}",e);
             return false;
         }
 
         //下发可变车道牌方案
+        log.info("可变车道牌 | {}，正式方案开始下发",changeableLaneScheme.getAcsId());
         List<VariableLaneDTO> variableLaneDTOS = changeableLaneScheme.getVariableLaneSchemesByType(2);
-        variableLaneControl = new VariableLaneControl
-                (changeableLaneScheme.getAcsId(),variableLaneDTOS);
+        if(CollectionUtils.isEmpty(variableLaneList)){
+            variableLaneControl =
+                    VariableLaneControl.builder()
+                            .acsId(changeableLaneScheme.getAcsId())
+                            .variableLaneList(
+                                    Arrays.asList(VariableLaneDTO.builder().mode(4).entranceId(null).build()))
+                            .build();
+        }else{
+            variableLaneControl = new VariableLaneControl
+                    (changeableLaneScheme.getAcsId(),variableLaneList);
+        }
         variableLaneClient.variableLaneControlDown(variableLaneControl);
 
         isSend = judgeSchemeIsSend(changeableLaneScheme.getAcsId(), variableLaneDTOS);
+        log.info("可变车道牌 | {}，正式方案下发成功",changeableLaneScheme.getAcsId());
         return isSend;
     }
 
     private boolean judgeSchemeIsSend(Integer acsId,List<VariableLaneDTO> variableLaneList) {
-        Integer intersectionId = acsIdIntersectionIdMap.get(acsId);
         boolean isSuccess = false;
-        LocalDateTime endTime = LocalDateTime.now().plusSeconds(30);
+        LocalDateTime endTime = LocalDateTime.now().plusSeconds(120);
         while(true){
-            VariableLaneStatesDTO variableLaneStatesDTO = variableLaneClient.getVariableLaneState(intersectionId)
+            VariableLaneStatesDTO variableLaneStatesDTO = variableLaneClient.getVariableLaneState(acsId)
                     .orElse(null);
             if(Objects.nonNull(variableLaneStatesDTO)){
                 List<VariableLaneStateDTO> schemeRecord = variableLaneStatesDTO.getLaneStates();
@@ -240,11 +267,12 @@ public class ChangeableLaneLockService {
         boolean isSame = true;
         for(VariableLaneDTO dto : variableLaneList){
             VariableLaneStateDTO variableLaneStateDTO = schemeRecord.stream()
-                    .filter(item -> Objects.equals(item.getEntranceId(), dto.getEntranceId()))
+                    .filter(item -> Objects.equals(item.getEntranceId(), dto.getEntranceId())&&
+                            Objects.equals(item.getLaneId(),dto.getLaneId()))
                     .findFirst()
                     .orElse(null);
             if(Objects.isNull(variableLaneStateDTO)
-                    ||!Objects.equals(dto.getState(),variableLaneStateDTO.getState())){
+                    ||!Objects.equals(dto.getState(),variableLaneStateDTO.getStatus())){
                 isSame = false;
                 break;
             }
@@ -261,6 +289,7 @@ public class ChangeableLaneLockService {
                     ChangeableLaneScheme changeableLaneScheme = new ChangeableLaneScheme();
                     changeableLaneScheme.setAcsId(item.getAcsId());
                     changeableLaneScheme.setAcsName(item.getName());
+                    changeableLaneScheme.setIntersectionId(acsIdIntersectionIdMap.get(item.getAcsId()));
                     //获取所有信号机方案
                     List<AcsSchemeInfo> acsSchemeInfos = acsSchemeMapper.selectAcsSchemeByAcsIdAndSchemeId(item.getAcsId(), scheme.getId());
                     if(!CollectionUtils.isEmpty(acsSchemeInfos)){
@@ -303,7 +332,7 @@ public class ChangeableLaneLockService {
                     //获取所有待转屏方案
                     //todo 诱导屏单点方案
 //                    List<TrafficScreenScheme> trafficScreenSchemes = trafficScreenSchemeMapper.selectTrafficScreenSchemeByAreaId(scheme.getId(), item.getAcsId());
-//                    changeableLaneScheme.setTrafficScreenSchemes(trafficScreenSchemes);
+                    changeableLaneScheme.setTrafficScreenSchemes(new ArrayList<>());
                     changeableLaneSchemes.add(changeableLaneScheme);
                 });
         scheme.setChangeableLaneSchemes(changeableLaneSchemes);

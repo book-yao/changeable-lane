@@ -49,4 +49,44 @@
         select * from t_variable_lane_scheme where acs_id = #{acsId} and scheme_id =#{schemeId};
     </select>
 
+
+    <insert id="insertVariableLane">
+        insert into t_variable_driveway
+        (`name`,
+        `vlc_id`,
+        `longitude`,
+        `latitude`,
+        `dev_type`,
+        `ip`,
+        `port`,
+        `screen`,
+        `single`,
+        `intersection_id`,
+        `entrance_id`,
+        `motor_lane_id`,
+        `primary_unit`,
+        `unit_two`,
+        `unit_three`)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+        (
+        #{item.name},
+        #{item.vlc_id},
+        #{item.longitude},
+        #{item.latitude},
+        #{item.dev_type},
+        #{item.ip},
+        #{item.port},
+        #{item.screen},
+        #{item.single},
+        #{item.intersection_id},
+        #{item.entrance_id},
+        #{item.motor_lane_id},
+        #{item.primary_unit},
+        #{item.unit_two},
+        #{item.unit_three}
+        )
+    </foreach>
+    </insert>
+
 </mapper>

@@ -5,23 +5,33 @@ import com.supcon.changeablelane.client.DataTrafficClient;
 import com.supcon.changeablelane.client.dto.AcsConfigInfoDTO;
 import com.supcon.changeablelane.constant.StatusCode;
 import com.supcon.changeablelane.domain.Scheme;
+import com.supcon.changeablelane.domain.VariableDriveway;
 import com.supcon.changeablelane.domain.scheme.AcsSchemeInfo;
 import com.supcon.changeablelane.domain.scheme.PhaseScheme;
 import com.supcon.changeablelane.dto.ResponseDTO;
 import com.supcon.changeablelane.mapper.AcsSchemeMapper;
 import com.supcon.changeablelane.mapper.SchemeMapper;
 import com.supcon.changeablelane.service.CreateDataService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import com.supcon.changeablelane.utils.GsonUtil;
+import io.swagger.annotations.*;
+import lombok.Cleanup;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @Author caowenbo
@@ -33,6 +43,7 @@ import java.util.Optional;
 @Api(
         value = "AcsController",
         tags = {"建造演示数据"})
+@Slf4j
 public class CreateDataController {
 
     @Autowired
@@ -92,8 +103,40 @@ public class CreateDataController {
         if(Objects.isNull(scheme)){
             return ResponseDTO.ofError(StatusCode.CODE_SOURCE_NOT_FOUND,"schemeId不存在。");
         }
-        createDataService.createTimingScheme(acsId,index,scheme.getSchemeId(),type);
+        createDataService.createTimingScheme(acsId,index,scheme.getId(),type);
         return ResponseDTO.ofSuccess();
+    }
+
+    @PostMapping(
+            value = "/variableLaneCard",
+            consumes = "multipart/*",
+            produces = "application/json",
+            headers = "content-type=multipart/form-data")
+    @ApiOperation(value = "上传子区路径文件数据", httpMethod = "POST")
+    @ApiResponse(code = 200, message = "上传成功")
+    @Transactional(rollbackFor = Exception.class)
+    public void upLoad(@ApiParam("file") @RequestParam(value = "file") MultipartFile file)
+            throws IOException {
+
+        if (file == null) {
+            log.info("上传文件为空");
+            return;
+        }
+        MultipartFile mpf = file;
+            try{
+                @Cleanup
+                BufferedReader streamReader =
+                        new BufferedReader(new InputStreamReader(mpf.getInputStream(), "utf-8"));
+                StringBuilder responseStrBuilder = new StringBuilder();
+                String inputStr;
+                while ((inputStr = streamReader.readLine()) != null) {
+                    responseStrBuilder.append(inputStr);
+                }
+                List<JSONObject> result = (List<JSONObject>)GsonUtil.fromJson(responseStrBuilder.toString(), List.class);
+                createDataService.insertIntoVariableLaneCard(result);
+            }catch (Exception e){
+                log.error("可变车道牌信息导入出错,{}",e);
+            }
     }
 
 }

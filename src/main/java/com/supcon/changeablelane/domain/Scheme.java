@@ -31,7 +31,7 @@ public class Scheme {
      */
     public List<ChangeableLaneScheme> getKeyAcsScheme(List<Integer> keyAcsId) {
         return this.getChangeableLaneSchemes().stream()
-                .filter(item-> keyAcsId.contains(item))
+                .filter(item-> keyAcsId.contains(item.getAcsId()))
                 .collect(Collectors.toList());
     }
 
@@ -42,7 +42,7 @@ public class Scheme {
      */
     public List<ChangeableLaneScheme> getAcsScheme(List<Integer> keyAcsId) {
         return this.getChangeableLaneSchemes().stream()
-                .filter(item-> !keyAcsId.contains(item))
+                .filter(item-> !keyAcsId.contains(item.getAcsId()))
                 .collect(Collectors.toList());
     }
 }
