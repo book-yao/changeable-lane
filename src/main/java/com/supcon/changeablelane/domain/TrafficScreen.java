@@ -51,6 +51,10 @@ public class TrafficScreen {
 
     private Double latitude;
 
+    private Double interSectionLongitude;
+
+    private Double interSectionLatitude;
+
     public void setLongi(Double longi) {
         this.longi = longi;
         this.longitude = longi;
@@ -59,5 +63,23 @@ public class TrafficScreen {
     public void setLati(Double lati) {
         this.lati = lati;
         this.latitude = lati;
+    }
+
+    public TrafficScreenScheme singleScheme() {
+        TrafficScreenScheme trafficScreenScheme = new TrafficScreenScheme();
+        trafficScreenScheme.setAcsId(this.acsId);
+        trafficScreenScheme.setDeviceCode(this.deviceCode);
+        trafficScreenScheme.setIsSend(0);
+        return trafficScreenScheme;
+    }
+
+    public TrafficScreenScheme createScheme() {
+        TrafficScreenScheme trafficScreenScheme = new TrafficScreenScheme();
+        trafficScreenScheme.setAcsId(this.acsId);
+        trafficScreenScheme.setDeviceCode(this.deviceCode);
+        trafficScreenScheme.setIsSend(1);
+        trafficScreenScheme.setEntranceId(this.getEntranceId());
+        trafficScreenScheme.setMessageOne("拥堵指数:停车指数");
+        return trafficScreenScheme;
     }
 }

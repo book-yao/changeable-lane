@@ -26,4 +26,13 @@
             acs_id = #{acsId} and scheme_id = #{schemeId};
     </select>
 
+    <select id="selectTrafficScreenByAreaId" resultMap="acs">
+        SELECT
+            *
+        FROM
+            t_traffic_screen_scheme
+        WHERE
+            acs_id = #{acsId} and scheme_id = #{schemeId};
+    </select>
+
 </mapper>

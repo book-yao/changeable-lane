@@ -1,6 +1,7 @@
 package com.supcon.changeablelane.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sun.org.apache.regexp.internal.RE;
 import com.supcon.changeablelane.domain.*;
 import com.supcon.changeablelane.domain.scheme.PhaseScheme;
 import com.supcon.changeablelane.mapper.*;
@@ -12,6 +13,7 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * @Author caowenbo
@@ -85,14 +87,38 @@ public class ChangeableLaneAreaService {
 
     public Scheme getLastScheme(Integer areaId) {
         String schemeStr = changeableLaneAreaMapper.selectAreaSchemeByAreaId(areaId);
+        Scheme scheme;
         if(Objects.isNull(schemeStr)){
-            return changeableLaneLockService.insertRunningSchemeHis(areaId);
+             scheme = changeableLaneLockService.insertRunningSchemeHis(areaId);
+        }else{
+            JSONObject jsonObject = JSONObject.parseObject(schemeStr);
+            scheme = jsonObject.toJavaObject(Scheme.class);
         }
-        JSONObject jsonObject = JSONObject.parseObject(schemeStr);
-        return jsonObject.toJavaObject(Scheme.class);
+        fillScreenScheme(scheme);
+        return scheme;
+    }
+
+    private void fillScreenScheme(Scheme scheme) {
+        scheme.getChangeableLaneSchemes().stream()
+                .forEach(changeableLaneScheme -> {
+                    //填充诱导屏假数据
+                    List<TrafficScreen> trafficScreens = trafficScreenMapper.selectTrafficScreenByAcsId(changeableLaneScheme.getAcsId());
+                    List<TrafficScreenScheme> collect = trafficScreens.stream()
+                            .map(item -> {
+                                return item.createScheme();
+                            }).collect(Collectors.toList());
+                    changeableLaneScheme.setTrafficScreenSchemes(collect);
+                });
     }
 
     public Scheme getRunningScheme(Integer areaId) {
-       return changeableLaneLockService.insertRunningSchemeHis(areaId);
+        //获取当前锁定方案
+        ChangeableLaneLock result = changeableLaneLockMapper.selectLastLockByAreaId(areaId);
+        if(Objects.nonNull(result)&&result.isValid()){
+            return changeableLaneLockService.fillScheme(areaId, result.getSchemeId());
+        }
+        Scheme scheme = changeableLaneLockService.insertRunningSchemeHis(areaId);
+        fillScreenScheme(scheme);
+        return scheme;
     }
 }

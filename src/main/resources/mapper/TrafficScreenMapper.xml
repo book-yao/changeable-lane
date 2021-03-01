@@ -13,20 +13,43 @@
         <result property="acsId" column="acs_id"/>
         <result property="intersectionId" column="intersection_id"/>
         <result property="entranceId" column="entrance_id"/>
+        <result property="interSectionLatitude" column="inter_section_latitude"/>
+        <result property="interSectionLongitude" column="inter_section_longitude"/>
     </resultMap>
 
     <select id="selectTrafficScreenByAreaId" resultMap="trafficScreen">
         SELECT
-            t2.*
+            t2.*,
+            t3.longitude as inter_section_longitude,
+            t3.latitude as inter_section_latitude
+
         FROM
             t_relation_acs_traffic_screen t1
         LEFT JOIN t_traffic_screen t2 ON t1.traffic_screen_id = t2.id
+        LEFT JOIN t_acs t3 ON t2.acs_id = t3.acs_id
         WHERE
             t1.area_id = #{areaId};
     </select>
 
     <select id="selectTrafficScreen" resultMap="trafficScreen">
-        select * from t_traffic_screen;
+        select t2.*,
+            t3.longitude as inter_section_longitude,
+            t3.latitude as inter_section_latitude from t_traffic_screen t2 LEFT JOIN t_acs t3 ON t2.acs_id = t3.acs_id ;
+    </select>
+
+
+
+    <select id="selectTrafficScreenByAcsId" resultMap="trafficScreen">
+        SELECT
+            t2.*,
+            t3.longitude as inter_section_longitude,
+            t3.latitude as inter_section_latitude
+
+        FROM
+             t_traffic_screen t2
+        LEFT JOIN t_acs t3 ON t2.acs_id = t3.acs_id
+        WHERE
+            t2.acs_id = #{acsId};
     </select>
 
 </mapper>

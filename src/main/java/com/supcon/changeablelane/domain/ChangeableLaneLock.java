@@ -33,7 +33,7 @@ public class ChangeableLaneLock {
             startTime = startTime.plusHours(this.getLockHour());
         }
         if(Objects.nonNull(this.getLockMinute())){
-            startTime = startTime.plusHours(this.getLockHour());
+            startTime = startTime.plusMinutes(this.getLockMinute());
         }
         if(LocalDateTime.now().isBefore(startTime)){
            return true;

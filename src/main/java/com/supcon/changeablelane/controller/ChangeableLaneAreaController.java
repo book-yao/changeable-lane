@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -73,6 +74,9 @@ public class ChangeableLaneAreaController {
         if(Objects.isNull(changeableLaneLock)
            ||Objects.isNull(changeableLaneLock.getLockType())){
             return ResponseDTO.ofError(StatusCode.CODE_PARAM_ERROR,"参数不合法");
+        }
+        if(Objects.isNull(changeableLaneLock.getStartTime())){
+            changeableLaneLock.setStartTime(LocalDateTime.now());
         }
         String message = changeableLaneLockService.areaLock(areaId, changeableLaneLock);
         if(Objects.nonNull(message)){

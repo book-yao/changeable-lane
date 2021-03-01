@@ -14,4 +14,6 @@ public interface TrafficScreenMapper {
     List<TrafficScreen> selectTrafficScreenByAreaId(Integer areaId);
 
     List<TrafficScreen> selectTrafficScreen();
+
+    List<TrafficScreen> selectTrafficScreenByAcsId(Integer acsId);
 }

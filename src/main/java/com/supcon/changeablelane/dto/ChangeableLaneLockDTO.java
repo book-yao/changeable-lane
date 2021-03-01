@@ -4,6 +4,7 @@ import com.supcon.changeablelane.domain.ChangeableLaneLock;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * @Author caowenbo
@@ -37,5 +38,20 @@ public class ChangeableLaneLockDTO {
         changeableLaneLock.setSchemeId(this.getSchemeId());
         changeableLaneLock.setStartTime(this.getStartTime());
         return changeableLaneLock;
+    }
+
+    /**
+     * 获取锁定时间数
+     * @return
+     */
+    public Integer getLockTime() {
+        int lockTime = 0;
+        if(Objects.nonNull(this.getLockHour())){
+            lockTime = this.getLockHour()*60+lockTime;
+        }
+        if(Objects.nonNull(this.getLockMinute())){
+            lockTime = lockTime+this.getLockMinute();
+        }
+        return lockTime;
     }
 }

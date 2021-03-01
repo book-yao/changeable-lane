@@ -22,7 +22,7 @@ public class OutputSchemesDTO {
     public OutputSchemesDTO() {
     }
 
-    public OutputSchemesDTO(Integer acsId,AcsOutput acsOutput, Integer transitionalRunTime) {
+    public OutputSchemesDTO(Integer acsId,AcsOutput acsOutput, Integer transitionalRunTime,Integer lockTime) {
         if(Objects.isNull(acsOutput)){
             acsOutput = new AcsOutput();
             acsOutput.setAcsId(acsId);
@@ -42,7 +42,7 @@ public class OutputSchemesDTO {
         output.setKeyAcsID(acsOutput.getAcsId());
         output.setStatusCode(2);
         output.setSubAreaID(acsOutput.getAcsId());
-        output.setLockTime(0);
+        output.setLockTime(lockTime);
         output.setSchemeSource(SchemeSourceEnum.SUPCONIT);
         output.setLoadTime(
                 DateTimeFormatter.ofPattern("yyyy,MM,dd,HH,mm,ss").format(LocalDateTime.now()));
