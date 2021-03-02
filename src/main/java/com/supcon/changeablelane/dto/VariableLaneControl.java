@@ -22,7 +22,7 @@ public class VariableLaneControl {
       if(Objects.nonNull(lockTime)){
         variableLaneDTOS.stream()
                 .forEach(item->{
-                  item.setLockTime(lockTime);
+                  item.setLockTime(lockTime*60);
                 });
       }
     this.acsId = acsId;

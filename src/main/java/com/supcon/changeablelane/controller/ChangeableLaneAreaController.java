@@ -95,6 +95,15 @@ public class ChangeableLaneAreaController {
         return ResponseDTO.ofSuccess(changeableLaneLock);
     }
 
+    @PutMapping(value = "/lockTime")
+    @ApiOperation(value = "获取当前锁定方案")
+    public ResponseDTO<Void> updateLockTime(
+            Integer lockTime){
+        changeableLaneLockService.updateLockTime(lockTime);
+
+        return ResponseDTO.ofSuccess();
+    }
+
     @GetMapping(value = "/trafficSrceen")
     @ApiOperation(value = "获取所有的诱导屏")
     public ResponseDTO<List<TrafficScreen>> variableDriveways(){

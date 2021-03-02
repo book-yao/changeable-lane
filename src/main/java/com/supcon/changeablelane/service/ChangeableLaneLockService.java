@@ -13,6 +13,7 @@ import com.supcon.changeablelane.dto.ChangeableLaneLockDTO;
 import com.supcon.changeablelane.dto.OutputSchemesDTO;
 import com.supcon.changeablelane.dto.VariableLaneControl;
 import com.supcon.changeablelane.mapper.*;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -78,6 +80,8 @@ public class ChangeableLaneLockService {
     @Autowired
     @Qualifier("executorService")
     private ExecutorService executorService;
+
+    private Integer acsLockTime = 50;
 
 
     public String areaLock(Integer areaId, ChangeableLaneLockDTO changeableLaneLock) {
@@ -157,7 +161,8 @@ public class ChangeableLaneLockService {
      * @param areaId
      * @param schemeId
      */
-    private void sendSchemeToOs(Integer areaId, Integer schemeId,Integer lockTime,Integer type) {
+    @SneakyThrows
+    private void sendSchemeToOs(Integer areaId, Integer schemeId, Integer lockTime, Integer type) {
         //先获取当前区域运行信号机，可变车道牌,诱导屏方案
         insertRunningSchemeHis(areaId);
         Scheme scheme ;
@@ -171,6 +176,7 @@ public class ChangeableLaneLockService {
         List<ChangeableLaneScheme> acsSchemes = scheme.getAcsScheme(keyAcsId);
 
         List<Future<Boolean>> result = new ArrayList<>();
+
         //下发关键路口的方案
         keyAcsSchemes.stream()
                 .forEach(item->{
@@ -257,8 +263,8 @@ public class ChangeableLaneLockService {
         try {
             log.info("路口 | {}，信号机方案下发成功，进入等待时间，等待（{}）秒",
                     changeableLaneScheme.getAcsId(),
-                    100);
-            Thread.sleep(100*1000);
+                    acsLockTime);
+            Thread.sleep(acsLockTime*1000);
         } catch (InterruptedException e) {
             log.error("服务异常：{}",e);
             return false;
@@ -406,5 +412,9 @@ public class ChangeableLaneLockService {
            return result;
         }
         return null;
+    }
+
+    public void updateLockTime(Integer lockTime) {
+        this.acsLockTime = lockTime;
     }
 }
