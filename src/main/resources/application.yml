@@ -79,7 +79,7 @@ url:
   variableLaneUrl: http://10.10.15.146:9021/api/v1
   aiEffectAssessmentUrl: http://10.10.15.146:9024/api/v1
   generalPlatformUrl: http://10.10.77.111:8087
-  trafficScreenUrl: http://127.0.0.1:9030
+  trafficScreenUrl: http://172.20.2.17:9030
   IntellificOSUrl: http://10.10.20.17:8888
 exchange-setting:
   loginType: body

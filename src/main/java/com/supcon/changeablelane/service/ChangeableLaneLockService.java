@@ -257,7 +257,7 @@ public class ChangeableLaneLockService {
         try {
             log.info("路口 | {}，信号机方案下发成功，进入等待时间，等待（{}）秒",
                     changeableLaneScheme.getAcsId(),
-                    changeableLaneScheme.getAcsOutputs().getCycleTime());
+                    100);
             Thread.sleep(100*1000);
         } catch (InterruptedException e) {
             log.error("服务异常：{}",e);
@@ -267,9 +267,9 @@ public class ChangeableLaneLockService {
         //下发可变车道牌方案
         log.info("可变车道牌 | {}，正式方案开始下发",changeableLaneScheme.getAcsId());
         List<VariableLaneDTO> variableLaneDTOS = changeableLaneScheme.getVariableLaneSchemesByType(2);
-        if(!CollectionUtils.isEmpty(variableLaneList)){
+        if(!CollectionUtils.isEmpty(variableLaneDTOS)){
             variableLaneControl = new VariableLaneControl
-                    (changeableLaneScheme.getAcsId(),variableLaneList);
+                    (changeableLaneScheme.getAcsId(),variableLaneDTOS,lockTime);
             variableLaneClient.variableLaneControlDown(variableLaneControl);
             isSend = judgeSchemeIsSend(changeableLaneScheme.getAcsId(), variableLaneDTOS);
         }else{

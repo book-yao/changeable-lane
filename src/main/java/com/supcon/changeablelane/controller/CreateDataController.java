@@ -58,10 +58,6 @@ public class CreateDataController {
     @Autowired
     private CreateDataService createDataService;
 
-
-    @Value("#{${param.acsId-intersectionId}}")
-    private Map<Integer,Integer> acsIdIntersectionIdMap;
-
     @PostMapping(value = "create/acsScheme")
     @ApiOperation(value = "新建信号机方案")
     public ResponseDTO<Void> areas(Integer acsId,
