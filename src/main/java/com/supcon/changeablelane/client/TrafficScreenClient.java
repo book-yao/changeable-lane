@@ -37,7 +37,7 @@ public class TrafficScreenClient {
     /**
      * 单点方案url
      */
-    private static final String SEND_MESSAGE = "/ledMode/sendLedMessage";
+    private static final String SEND_MESSAGE = "/jtjc_web/ledMode/sendLedMessage";
 
     @Autowired
     private RestTemplate restTemplate;

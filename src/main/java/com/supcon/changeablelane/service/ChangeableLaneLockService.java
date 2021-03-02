@@ -15,6 +15,7 @@ import com.supcon.changeablelane.dto.VariableLaneControl;
 import com.supcon.changeablelane.mapper.*;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,11 +24,9 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -81,6 +80,10 @@ public class ChangeableLaneLockService {
     @Qualifier("executorService")
     private ExecutorService executorService;
 
+    @Autowired
+    @Qualifier("scheduledExecutorService")
+    private ScheduledExecutorService scheduledExecutorService;
+
     private Integer acsLockTime = 50;
 
 
@@ -91,7 +94,7 @@ public class ChangeableLaneLockService {
             executorService.execute(()->{
                 this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),changeableLaneLock.getLockTime(),1);
             });
-
+            FutureCache.clearScheduleTask(changeableLaneLock.getAreaId());
         }else{
             Scheme scheme = schemeMapper.selectSchemeByAreaIdAndSchemeId(areaId, changeableLaneLock.getSchemeId());
             if(Objects.isNull(scheme)){
@@ -108,8 +111,35 @@ public class ChangeableLaneLockService {
             executorService.execute(()->{
                 this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),changeableLaneLock.getLockTime(),2);
             });
+            //缓存解锁任务
+            cacheUnlock(changeableLaneLock);
         }
         return null;
+    }
+
+    private void cacheUnlock(ChangeableLaneLockDTO changeableLaneLock) {
+        ScheduledFuture<?> scheduledFuture =
+                scheduledExecutorService.scheduleWithFixedDelay(
+                        () -> {
+                            try {
+                                changeableLaneLock.setLockType(2);
+                                this.sendSchemeToOs(changeableLaneLock.getAreaId(),changeableLaneLock.getSchemeId(),changeableLaneLock.getLockTime(),1);
+                            } catch (Exception e) {
+                                log.error(
+                                        "可变车道 {}  运行方案出错 | 错误信息:{}",
+                                        changeableLaneLock.getAreaId(),
+                                        ExceptionUtils.getStackTrace(e));
+                            }
+                        },
+                        0,
+                        changeableLaneLock.getLockTime() * 60 * 1000,
+                        TimeUnit.MILLISECONDS);
+        FutureCache.cacheScheduleFuture(changeableLaneLock.getAreaId(), scheduledFuture);
+        log.info(
+                "匝道 {} | 智能控制定时任务 |  | 下次触发时间 / {}",
+                changeableLaneLock.getAreaId(),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                        .format(LocalDateTime.now().plusMinutes(changeableLaneLock.getLockMinute())));
     }
 
 
@@ -155,6 +185,45 @@ public class ChangeableLaneLockService {
         return scheme;
     }
 
+    public Scheme getRunningSchemeHis(Integer areaId){
+        List<AcsInfo> acsInfos = acsMapper.selectAcsByAreaId(areaId);
+        Scheme scheme = new Scheme();
+        scheme.setAreaId(areaId);
+        scheme.setName("历史方案");
+        List<ChangeableLaneScheme> changeableLaneSchemes = new ArrayList<>();
+        acsInfos.stream()
+                .forEach(item->{
+                    ChangeableLaneScheme changeableLaneScheme = new ChangeableLaneScheme();
+                    //获取信号机运行记录
+                    AcsOutput acsOutput = dataTrafficClient.getLastRunningScheme(item.getAcsId());
+                    changeableLaneScheme.setAcsOutputs(acsOutput);
+                    changeableLaneScheme.setAcsId(item.getAcsId());
+                    changeableLaneScheme.setAcsName(item.getName());
+                    changeableLaneScheme.setIntersectionId(acsIdIntersectionIdMap.get(item.getAcsId()));
+                    //获取到可变车道牌运行记录
+                    //Integer intersectionId = acsIdIntersectionIdMap.get(item.getAcsId());
+                    if(Objects.nonNull(item.getAcsId())){
+                        variableLaneClient.getVariableLaneState(item.getAcsId())
+                                .ifPresent(variableLaneStatesDTO -> {
+                                    if(Objects.nonNull(variableLaneStatesDTO)&&!CollectionUtils.isEmpty(variableLaneStatesDTO.getLaneStates())){
+                                        List<VariableLaneDTO> variableLaneList = variableLaneStatesDTO.convertToVariableLaneControlByNoChangeLane(
+                                                item.getAcsId()).getVariableLaneList();
+                                        variableLaneList.stream()
+                                                .forEach(variableLaneDTO->{
+                                                    variableLaneDTO.setIntersectionId(item.getAcsId());
+                                                });
+                                        changeableLaneScheme.setVariableLaneSchemes(variableLaneList);
+                                    }
+
+                                });
+                    }
+                    //获取诱导屏信息
+                    changeableLaneSchemes.add(changeableLaneScheme);
+                });
+        scheme.setChangeableLaneSchemes(changeableLaneSchemes);
+        return scheme;
+    }
+
     /**
      * 下发指定方案到os
      * type 1 单点方案，2 是算法方案
@@ -174,9 +243,18 @@ public class ChangeableLaneLockService {
         //区分出关键路口方案以及相领路口方案
         List<ChangeableLaneScheme> keyAcsSchemes = scheme.getKeyAcsScheme(keyAcsId);
         List<ChangeableLaneScheme> acsSchemes = scheme.getAcsScheme(keyAcsId);
+        if(Objects.equals(type,1)){
+            sendOsScheme(acsSchemes,keyAcsSchemes,lockTime);
+        }else{
+            sendOsScheme(keyAcsSchemes,acsSchemes,lockTime);
+        }
 
+    }
+
+    private void sendOsScheme(List<ChangeableLaneScheme> keyAcsSchemes,
+                              List<ChangeableLaneScheme> acsSchemes,
+                              Integer lockTime) {
         List<Future<Boolean>> result = new ArrayList<>();
-
         //下发关键路口的方案
         keyAcsSchemes.stream()
                 .forEach(item->{
@@ -198,13 +276,28 @@ public class ChangeableLaneLockService {
                 return;
             }
         }
+
+        List<Future<Boolean>> results = new ArrayList<>();
         //下发关联路口的方案
         acsSchemes.stream()
                 .forEach(item->{
                     Future<Boolean> submit = executorService.submit(() -> {
                         return downScheme(item,lockTime);
                     });
+                    results.add(submit);
                 });
+        for (Future<Boolean> res:results) {
+            Boolean aBoolean = false;
+            try {
+                aBoolean = res.get();
+            } catch (Exception e) {
+                log.error("可变车道牌 关键路口方案下发失败,流程结束");
+            }
+            if(!aBoolean){
+                log.error("可变车道牌 关键路口方案下发失败,流程结束");
+                return;
+            }
+        }
     }
 
     /**

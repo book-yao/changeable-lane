@@ -32,4 +32,9 @@ public class VariableLaneDTO {
   private Integer state;
 
   private Integer type;
+
+  /**
+   * 1 发生改变 0 未发生改变
+   */
+  private Integer isChange;
 }

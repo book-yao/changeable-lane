@@ -33,6 +33,11 @@ public class PhaseOutput {
   private int totalTime;
 
   /**
+   * 1 发生改变 0 未发生改变
+   */
+  private int isChange;
+
+  /**
    * 通行流量
    *
    * @add by JWF 2019/5/27

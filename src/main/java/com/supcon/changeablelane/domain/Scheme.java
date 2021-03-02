@@ -1,6 +1,7 @@
 package com.supcon.changeablelane.domain;
 
 import lombok.Data;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -44,5 +45,23 @@ public class Scheme {
         return this.getChangeableLaneSchemes().stream()
                 .filter(item-> !keyAcsId.contains(item.getAcsId()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 对比方案不同点
+     * @param lastScheme
+     */
+    public void compareOtherScheme(Scheme lastScheme) {
+        if (Objects.isNull(lastScheme)|| CollectionUtils.isEmpty(lastScheme.getChangeableLaneSchemes())) {
+            return;
+        }
+        this.getChangeableLaneSchemes().stream()
+        .forEach(item->{
+            ChangeableLaneScheme otherScheme = lastScheme.getChangeableLaneSchemes().stream()
+                    .filter(changeableLaneScheme -> Objects.equals(changeableLaneScheme.getAcsId(), item.getAcsId()))
+                    .findFirst()
+                    .orElse(null);
+            item.compareOtherChangeableLaneScheme(otherScheme);
+        });
     }
 }

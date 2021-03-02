@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author caowenbo
@@ -96,7 +97,7 @@ public class ChangeableLaneAreaController {
     }
 
     @PutMapping(value = "/lockTime")
-    @ApiOperation(value = "获取当前锁定方案")
+    @ApiOperation(value = "修改信号机下发方案等待时间")
     public ResponseDTO<Void> updateLockTime(
             Integer lockTime){
         changeableLaneLockService.updateLockTime(lockTime);
@@ -138,6 +139,12 @@ public class ChangeableLaneAreaController {
     @ApiOperation(value = "获取区域历史运行记录")
     public ResponseDTO<Scheme> getLastScheme(@PathVariable("areaId")Integer areaId){
         Scheme scheme= changeableLaneAreaService.getLastScheme(areaId);
+        scheme.getChangeableLaneSchemes().stream()
+                .forEach(item ->{
+                    item.setVariableLaneSchemes(item.getVariableLaneSchemes().stream()
+                    .filter(variableLaneDTO -> !Objects.equals(variableLaneDTO.getType(),1))
+                    .collect(Collectors.toList()));
+                });
         return ResponseDTO.ofSuccess(scheme);
     }
 

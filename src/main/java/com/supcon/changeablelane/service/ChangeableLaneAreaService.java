@@ -114,11 +114,24 @@ public class ChangeableLaneAreaService {
     public Scheme getRunningScheme(Integer areaId) {
         //获取当前锁定方案
         ChangeableLaneLock result = changeableLaneLockMapper.selectLastLockByAreaId(areaId);
+        Scheme scheme;
         if(Objects.nonNull(result)&&result.isValid()){
-            return changeableLaneLockService.fillScheme(areaId, result.getSchemeId());
+            scheme = changeableLaneLockService.fillScheme(areaId, result.getSchemeId());
+        }else{
+            scheme = changeableLaneLockService.getRunningSchemeHis(areaId);
+            fillScreenScheme(scheme);
         }
-        Scheme scheme = changeableLaneLockService.insertRunningSchemeHis(areaId);
-        fillScreenScheme(scheme);
+        //只展示可变车道正式方案
+        scheme.getChangeableLaneSchemes().stream()
+                .forEach(item ->{
+                    item.setVariableLaneSchemes(item.getVariableLaneSchemes().stream()
+                            .filter(variableLaneDTO -> !Objects.equals(variableLaneDTO.getType(),1))
+                            .collect(Collectors.toList()));
+                });
+        //获取下发前方案信息
+        Scheme lastScheme = this.getLastScheme(areaId);
+        //对比两套方案，找出方案不同点
+        scheme.compareOtherScheme(lastScheme);
         return scheme;
     }
 }

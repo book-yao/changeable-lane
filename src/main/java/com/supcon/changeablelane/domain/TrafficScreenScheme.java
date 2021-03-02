@@ -45,4 +45,9 @@ public class TrafficScreenScheme {
     private int intersectionId;
 
     private String remark;
+
+    /**
+     * 1 发生改变 0 未发生改变
+     */
+    private Integer isChange;
 }
