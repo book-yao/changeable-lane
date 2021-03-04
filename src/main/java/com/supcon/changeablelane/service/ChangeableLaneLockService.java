@@ -414,7 +414,7 @@ public class ChangeableLaneLockService {
 
     private boolean judgeSchemeIsSend(Integer acsId,List<VariableLaneDTO> variableLaneList) {
         boolean isSuccess = false;
-        LocalDateTime endTime = LocalDateTime.now().plusSeconds(120);
+        LocalDateTime endTime = LocalDateTime.now().plusSeconds(150);
         while(true){
 //            VariableLaneStatesDTO variableLaneStatesDTO = variableLaneClient.getVariableLaneState(acsId)
 //                    .orElse(null);
