@@ -24,18 +24,6 @@ import java.util.concurrent.*;
 @Slf4j
 public class ChangeableLaneApplication {
 
-    /**
-     * HTTP连接超时为1秒
-     */
-    private static final int REST_TEMPLATE_CONNECT_TIMEOUT = 30 * 1000;
-    /**
-     * HTTP读取超时为5秒
-     */
-    private static final int REST_TEMPLATE_READ_TIMEOUT = 60 * 1000;
-
-    @Autowired
-    private BeanFactory beanFactory;
-
     public static void main(String[] args) {
         SpringApplication.run(ChangeableLaneApplication.class, args);
     }

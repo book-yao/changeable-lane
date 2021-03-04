@@ -112,6 +112,7 @@ public class VariableLaneClient {
     public boolean variableLaneControlDown(VariableLaneControl variableLaneControl) {
         String url = exchangeUrl + VARIABLE_LANE_CONTROL_DOWN;
         try {
+            //暂时不下发方案
             restTemplate.postForLocation(url, variableLaneControl);
             //      if (log.isDebugEnabled()) {
             log.info(
@@ -137,6 +138,7 @@ public class VariableLaneClient {
     public Optional<Integer> downOutput(OutputSchemesDTO outputSchemesDTO) {
         String url = exchangeUrl + LASTEST_OUTPUT_URL;
         try {
+            //todo 暂时不下发
             restTemplate.postForLocation(url, outputSchemesDTO);
             //      if (log.isDebugEnabled()) {
             log.info(

@@ -89,7 +89,7 @@ public class ChangeableLaneAreaService {
         String schemeStr = changeableLaneAreaMapper.selectAreaSchemeByAreaId(areaId);
         Scheme scheme;
         if(Objects.isNull(schemeStr)){
-             scheme = changeableLaneLockService.insertRunningSchemeHis(areaId);
+             scheme = changeableLaneLockService.insertRunningSchemeHis(areaId,false);
         }else{
             JSONObject jsonObject = JSONObject.parseObject(schemeStr);
             scheme = jsonObject.toJavaObject(Scheme.class);

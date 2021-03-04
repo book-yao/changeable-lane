@@ -69,7 +69,7 @@ public class ChangeableLaneAreaController {
 
     @PostMapping(value = "/{areaId}/lock")
     @ApiOperation(value = "解锁和锁定方案")
-    public ResponseDTO<Void> areaLock(
+    public ResponseDTO<ChangeableLaneLockDTO> areaLock(
             @PathVariable("areaId")Integer areaId,
             @RequestBody ChangeableLaneLockDTO changeableLaneLock){
         if(Objects.isNull(changeableLaneLock)
@@ -83,7 +83,7 @@ public class ChangeableLaneAreaController {
         if(Objects.nonNull(message)){
             return ResponseDTO.ofError(StatusCode.CODE_SERVER_EXCEPTION,message);
         }
-        return ResponseDTO.ofSuccess();
+        return ResponseDTO.ofSuccess(changeableLaneLock);
     }
 
     @GetMapping(value = "/{areaId}/lock")
@@ -94,15 +94,6 @@ public class ChangeableLaneAreaController {
         ChangeableLaneLock changeableLaneLock = changeableLaneLockService.getLock(areaId);
 
         return ResponseDTO.ofSuccess(changeableLaneLock);
-    }
-
-    @PutMapping(value = "/lockTime")
-    @ApiOperation(value = "修改信号机下发方案等待时间")
-    public ResponseDTO<Void> updateLockTime(
-            Integer lockTime){
-        changeableLaneLockService.updateLockTime(lockTime);
-
-        return ResponseDTO.ofSuccess();
     }
 
     @GetMapping(value = "/trafficSrceen")
@@ -139,12 +130,6 @@ public class ChangeableLaneAreaController {
     @ApiOperation(value = "获取区域历史运行记录")
     public ResponseDTO<Scheme> getLastScheme(@PathVariable("areaId")Integer areaId){
         Scheme scheme= changeableLaneAreaService.getLastScheme(areaId);
-        scheme.getChangeableLaneSchemes().stream()
-                .forEach(item ->{
-                    item.setVariableLaneSchemes(item.getVariableLaneSchemes().stream()
-                    .filter(variableLaneDTO -> !Objects.equals(variableLaneDTO.getType(),1))
-                    .collect(Collectors.toList()));
-                });
         return ResponseDTO.ofSuccess(scheme);
     }
 

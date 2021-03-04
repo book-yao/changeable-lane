@@ -68,6 +68,7 @@ public class TrafficScreenClient {
     public boolean sendLedMessage(TrafficScreenScheme trafficScreenScheme){
         final String url = trafficScreenUrl + SEND_MESSAGE;
         try {
+            //暂时不下发方案
             restTemplate.postForLocation(url, trafficScreenScheme);
             log.info(
                     "诱导屏 / {} ,进口 {}| 下发控制信息成功,控制信息为:{}",

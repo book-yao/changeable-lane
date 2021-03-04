@@ -1,0 +1,96 @@
+spring:
+  # 数据库配置
+  datasource:
+    url: jdbc:mysql://33.83.56.110:3369/changeable_lane_coordination?characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+    username: root
+    password: supconit
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 100
+      validation-timeout: 3000
+      connection-timeout: 30000
+      idle-timeout: 60000
+      max-lifetime: 120000
+      minimum-idle: 10
+#  boot:
+#    admin:
+#      client:
+#        url: http://33.94.247.151:9001
+#        instance:
+#          service-base-url: http://33.94.247.151:9030
+  application:
+    name: changeable-lane-associdinate
+  main:
+    allow-bean-definition-overriding: true
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+# 服务器配置
+server:
+  port: 9031
+# mybatis配置
+mybatis:
+  # 配置映射类所在包名
+  type-aliases-package:
+  # 配置mapper xml文件所在路径，这里是一个数组
+  mapper-locations: classpath:mapper/*Mapper.xml
+  # - mappers/ProductMapper.xml
+  # - mappers/ShopMapper.xml
+  configuration:
+    #延迟加载
+    lazy-loading-enabled: true
+    # 按需加载
+    aggressive-lazy-loading: false
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    lazy-load-trigger-methods: "toString()"
+  type-handlers-package:
+
+  #log-impl: SLF4J
+
+logging:
+  level:
+    com.supconit.suptap.*: info
+  pattern:
+    #console: "%d{yyyy-MM-dd HH:mm:ss.SSS}[%level]:%msg%n"
+    #file: "%d{yyyy-MM-dd HH:mm:ss.SSS}[%level]:%msg%n"
+    charset: UTF-8
+  file:
+    path: D:\AlgorithmPlatform\suptap-log\${spring.application.name}
+
+url:
+  IntellificOS:
+    login: http://http://33.94.232.7/:13081
+
+  dataManagementUrl: http://33.83.56.110:9010/api/v1
+  effectAssessmentUrl: http://33.83.56.109:9014/api/v1
+  selfAdaptiveAlgorithmUrl: http://33.83.56.109:9013/api/v1
+  dataProcessUrl: http://33.83.56.110:9012/api/v1
+  dataExchangeUrl: http://33.83.56.110:9008/api/v1
+  variableLaneUrl: http://33.94.247.151:9021/api/v1
+  trafficScreenUrl: http://33.94.232.11:80
+exchange-setting:
+  loginType: body
+  os:
+    user: alg_test
+    pass: 123456
+
+
+param:
+  acss: 300091,300217,300395,300292,300117
+
+  acsId-intersectionId: "{
+                          300091: 300091,
+                          300217: 300217,
+                          300395: 300295,
+                          300292: 300292,
+                          300117: 300117
+                          }"
+  keyAcsId: 300217,300292
+

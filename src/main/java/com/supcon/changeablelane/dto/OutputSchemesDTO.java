@@ -22,7 +22,7 @@ public class OutputSchemesDTO {
     public OutputSchemesDTO() {
     }
 
-    public OutputSchemesDTO(Integer acsId,AcsOutput acsOutput, Integer transitionalRunTime,Integer lockTime) {
+    public OutputSchemesDTO(Integer acsId,AcsOutput acsOutput, Integer lockTime,Integer transitionalRunTime) {
         if(Objects.isNull(acsOutput)){
             acsOutput = new AcsOutput();
             acsOutput.setAcsId(acsId);

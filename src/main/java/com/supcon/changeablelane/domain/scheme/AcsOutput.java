@@ -2,14 +2,15 @@ package com.supcon.changeablelane.domain.scheme;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.annotation.*;
+import com.sun.org.apache.regexp.internal.RE;
 import com.supcon.changeablelane.constant.AlgorithmModeEnum;
 import com.supcon.changeablelane.utils.UUIDUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.util.CollectionUtils;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -358,5 +359,19 @@ public class AcsOutput {
         this.phaseOutputs = phaseOutputs;
     }
 
+
+
+    public Integer getLockTime() {
+        if(Objects.isNull(this.getStartTime())){
+            return 30;
+        }
+        if(this.startTime.contains(".")){
+            LocalDateTime localDateTime = LocalDateTime.parse(this.startTime.split("\\.")[0], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).plusSeconds(this.cycleTime);
+            return Math.abs((int)Duration.between(LocalDateTime.now(),localDateTime).getSeconds());
+        }else {
+            return 30;
+        }
+
+    }
 
 }

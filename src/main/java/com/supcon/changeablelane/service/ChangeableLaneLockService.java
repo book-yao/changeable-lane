@@ -84,17 +84,25 @@ public class ChangeableLaneLockService {
     @Qualifier("scheduledExecutorService")
     private ScheduledExecutorService scheduledExecutorService;
 
-    private Integer acsLockTime = 50;
+    private static final Map<Integer,Integer> lockTimeMap = new ConcurrentHashMap<>();
 
 
     public String areaLock(Integer areaId, ChangeableLaneLockDTO changeableLaneLock) {
 
         if(Objects.equals(changeableLaneLock.getLockType(),2)){
+            ChangeableLaneLock changeableLaneLock1 = changeableLaneLockMapper.selectLastLockByAreaId(areaId);
+            if(Objects.isNull(changeableLaneLock1)){
+                return null;
+            }
             changeableLaneLockMapper.deleteChangeableLaneLockByAreaId(areaId);
             executorService.execute(()->{
-                this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),changeableLaneLock.getLockTime(),1);
+                this.sendSchemeToOs(areaId,changeableLaneLock1.getSchemeId(),changeableLaneLock.getLockTime(),1);
             });
-            FutureCache.clearScheduleTask(changeableLaneLock.getAreaId());
+            executorService.execute(()->{
+                //缓存解锁任务
+                //FutureCache.clearScheduleTask(areaId);
+            });
+
         }else{
             Scheme scheme = schemeMapper.selectSchemeByAreaIdAndSchemeId(areaId, changeableLaneLock.getSchemeId());
             if(Objects.isNull(scheme)){
@@ -111,8 +119,11 @@ public class ChangeableLaneLockService {
             executorService.execute(()->{
                 this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),changeableLaneLock.getLockTime(),2);
             });
-            //缓存解锁任务
-            cacheUnlock(changeableLaneLock);
+            executorService.execute(()->{
+                //缓存解锁任务
+                //cacheUnlock(changeableLaneLock);
+            });
+
         }
         return null;
     }
@@ -144,7 +155,7 @@ public class ChangeableLaneLockService {
 
 
     //获取当前信号机，可变车道牌，诱导屏 正在运行的方案
-    public Scheme insertRunningSchemeHis(Integer areaId){
+    public Scheme insertRunningSchemeHis(Integer areaId,boolean isSend){
         List<AcsInfo> acsInfos = acsMapper.selectAcsByAreaId(areaId);
         Scheme scheme = new Scheme();
         scheme.setAreaId(areaId);
@@ -155,6 +166,11 @@ public class ChangeableLaneLockService {
                     ChangeableLaneScheme changeableLaneScheme = new ChangeableLaneScheme();
                     //获取信号机运行记录
                     AcsOutput acsOutput = dataTrafficClient.getLastRunningScheme(item.getAcsId());
+                    if(isSend){
+                        //获取当前方案剩余时间
+                        Integer time = acsOutput.getLockTime();
+                        lockTimeMap.put(item.getAcsId(),time);
+                    }
                     changeableLaneScheme.setAcsOutputs(acsOutput);
                     changeableLaneScheme.setAcsId(item.getAcsId());
                     changeableLaneScheme.setAcsName(item.getName());
@@ -233,7 +249,7 @@ public class ChangeableLaneLockService {
     @SneakyThrows
     private void sendSchemeToOs(Integer areaId, Integer schemeId, Integer lockTime, Integer type) {
         //先获取当前区域运行信号机，可变车道牌,诱导屏方案
-        insertRunningSchemeHis(areaId);
+        insertRunningSchemeHis(areaId,true);
         Scheme scheme ;
         if(Objects.equals(type,1)){
             scheme = fillSingleScheme(areaId,schemeId);
@@ -351,8 +367,9 @@ public class ChangeableLaneLockService {
         //下发信号机方案
         variableLaneClient
                 .downOutput(new OutputSchemesDTO(changeableLaneScheme.getAcsId(),changeableLaneScheme.getAcsOutputs(),lockTime, 12 * 60));
-
         //等待信号方案一个周期
+        //获取当前方案剩余时间
+        int acsLockTime=  lockTimeMap.get(changeableLaneScheme.getAcsId())!=null?lockTimeMap.get(changeableLaneScheme.getAcsId()):30;
         try {
             log.info("路口 | {}，信号机方案下发成功，进入等待时间，等待（{}）秒",
                     changeableLaneScheme.getAcsId(),
@@ -505,9 +522,5 @@ public class ChangeableLaneLockService {
            return result;
         }
         return null;
-    }
-
-    public void updateLockTime(Integer lockTime) {
-        this.acsLockTime = lockTime;
     }
 }
