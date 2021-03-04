@@ -69,6 +69,10 @@ public class TrafficScreen {
         TrafficScreenScheme trafficScreenScheme = new TrafficScreenScheme();
         trafficScreenScheme.setAcsId(this.acsId);
         trafficScreenScheme.setDeviceCode(this.deviceCode);
+        trafficScreenScheme.setEntranceId(this.getEntranceId());
+        trafficScreenScheme.setMessageOne("停车指数:0.3");
+        trafficScreenScheme.setMessageTwo("拥堵指数:1.4");
+        trafficScreenScheme.setColor("2");
         trafficScreenScheme.setIsSend(0);
         return trafficScreenScheme;
     }
@@ -77,11 +81,11 @@ public class TrafficScreen {
         TrafficScreenScheme trafficScreenScheme = new TrafficScreenScheme();
         trafficScreenScheme.setAcsId(this.acsId);
         trafficScreenScheme.setDeviceCode(this.deviceCode);
-        trafficScreenScheme.setIsSend(0);
+        trafficScreenScheme.setIsSend(1);
         trafficScreenScheme.setColor("2");
         trafficScreenScheme.setEntranceId(this.getEntranceId());
-        trafficScreenScheme.setMessageOne("拥堵指数");
-        trafficScreenScheme.setMessageTwo("停车指数");
+        trafficScreenScheme.setMessageOne("停车指数:0.3");
+        trafficScreenScheme.setMessageTwo("拥堵指数:1.4");
         return trafficScreenScheme;
     }
 }
