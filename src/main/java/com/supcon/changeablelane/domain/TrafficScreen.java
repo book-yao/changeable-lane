@@ -73,7 +73,7 @@ public class TrafficScreen {
         trafficScreenScheme.setMessageOne("停车指数:0.3");
         trafficScreenScheme.setMessageTwo("拥堵指数:1.4");
         trafficScreenScheme.setColor("2");
-        trafficScreenScheme.setIsSend(0);
+        trafficScreenScheme.setIsSend(1);
         return trafficScreenScheme;
     }
 
