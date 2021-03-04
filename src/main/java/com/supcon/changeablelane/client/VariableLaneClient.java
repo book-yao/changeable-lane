@@ -142,14 +142,14 @@ public class VariableLaneClient {
             restTemplate.postForLocation(url, outputSchemesDTO);
             //      if (log.isDebugEnabled()) {
             log.info(
-                    "可变车道 / {} | 下发过滤方案成功 | 方案：{}",
+                    "可变车道 / {} | 下发信号机方案成功 | 方案：{}",
                     outputSchemesDTO.obtainAcsId(),
                     JSONObject.toJSONString(outputSchemesDTO));
             //      }
             return Optional.of(1);
         } catch (Exception e) {
             log.error(
-                    "可变车道 / {} | 下发过渡方案失败 | cause:{}",
+                    "可变车道 / {} | 下发信号机方案失败 | cause:{}",
                     outputSchemesDTO.obtainAcsId(),
                     ExceptionUtils.getStackTrace(e));
             return Optional.empty();

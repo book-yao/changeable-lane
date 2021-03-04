@@ -66,8 +66,8 @@ logging:
 
 url:
   IntellificOS:
-    login: http://http://33.94.232.7/:13081
-
+    login: http://33.94.232.7:13081
+    changeable: http://33.94.232.7:13000
   dataManagementUrl: http://33.83.56.110:9010/api/v1
   effectAssessmentUrl: http://33.83.56.109:9014/api/v1
   selfAdaptiveAlgorithmUrl: http://33.83.56.109:9013/api/v1

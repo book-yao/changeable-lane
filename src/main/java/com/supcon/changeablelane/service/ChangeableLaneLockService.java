@@ -2,6 +2,7 @@ package com.supcon.changeablelane.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.supcon.changeablelane.client.DataTrafficClient;
+import com.supcon.changeablelane.client.OsClient;
 import com.supcon.changeablelane.client.TrafficScreenClient;
 import com.supcon.changeablelane.client.VariableLaneClient;
 import com.supcon.changeablelane.client.dto.VariableLaneStateDTO;
@@ -83,6 +84,9 @@ public class ChangeableLaneLockService {
     @Autowired
     @Qualifier("scheduledExecutorService")
     private ScheduledExecutorService scheduledExecutorService;
+    
+    @Autowired
+    private OsClient osClient;
 
     private static final Map<Integer,Integer> lockTimeMap = new ConcurrentHashMap<>();
 
@@ -98,10 +102,10 @@ public class ChangeableLaneLockService {
             executorService.execute(()->{
                 this.sendSchemeToOs(areaId,changeableLaneLock1.getSchemeId(),changeableLaneLock.getLockTime(),1);
             });
-            executorService.execute(()->{
-                //缓存解锁任务
-                //FutureCache.clearScheduleTask(areaId);
-            });
+//            executorService.execute(()->{
+//                //缓存解锁任务
+//                FutureCache.clearScheduleTask(areaId);
+//            });
 
         }else{
             Scheme scheme = schemeMapper.selectSchemeByAreaIdAndSchemeId(areaId, changeableLaneLock.getSchemeId());
@@ -119,10 +123,10 @@ public class ChangeableLaneLockService {
             executorService.execute(()->{
                 this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),changeableLaneLock.getLockTime(),2);
             });
-            executorService.execute(()->{
-                //缓存解锁任务
-                //cacheUnlock(changeableLaneLock);
-            });
+//            executorService.execute(()->{
+//                //缓存解锁任务
+//                cacheUnlock(changeableLaneLock);
+//            });
 
         }
         return null;
@@ -133,6 +137,11 @@ public class ChangeableLaneLockService {
                 scheduledExecutorService.scheduleWithFixedDelay(
                         () -> {
                             try {
+                                log.info(
+                                        "可变车道 {}  运行方案出错 触发解锁操作 | 时间:{}",
+                                        changeableLaneLock.getAreaId(),
+                                        LocalDateTime.now()
+                                       );
                                 changeableLaneLock.setLockType(2);
                                 this.sendSchemeToOs(changeableLaneLock.getAreaId(),changeableLaneLock.getSchemeId(),changeableLaneLock.getLockTime(),1);
                             } catch (Exception e) {
@@ -407,8 +416,9 @@ public class ChangeableLaneLockService {
         boolean isSuccess = false;
         LocalDateTime endTime = LocalDateTime.now().plusSeconds(120);
         while(true){
-            VariableLaneStatesDTO variableLaneStatesDTO = variableLaneClient.getVariableLaneState(acsId)
-                    .orElse(null);
+//            VariableLaneStatesDTO variableLaneStatesDTO = variableLaneClient.getVariableLaneState(acsId)
+//                    .orElse(null);
+            VariableLaneStatesDTO variableLaneStatesDTO = osClient.variableLaneStates(acsId);
             if(Objects.nonNull(variableLaneStatesDTO)){
                 List<VariableLaneStateDTO> schemeRecord = variableLaneStatesDTO.getLaneStates();
                 //判断方案是否已经执行

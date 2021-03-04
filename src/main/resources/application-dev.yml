@@ -67,7 +67,7 @@ logging:
 url:
   IntellificOS:
     login: http://10.10.20.17:13081
-
+    changeable: http://10.10.20.17:13000
   dataManagementUrl: http://10.10.15.146:9010/api/v1
   effectAssessmentUrl: http://10.10.15.146:9014/api/v1
   selfAdaptiveAlgorithmUrl: http://10.10.15.146:9013/api/v1
