@@ -27,7 +27,7 @@ public class FutureCache {
     Future<?> future = scheduleMap.get(areaId);
     if (Objects.nonNull(future)) {
       future.cancel(true);
-      log.info("匝道 / {} | 定时触发任务取消成功", areaId);
+      log.info("可变车道 / {} | 定时触发任务取消成功", areaId);
     }
   }
 

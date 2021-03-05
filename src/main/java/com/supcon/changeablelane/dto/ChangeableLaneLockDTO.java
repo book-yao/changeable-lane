@@ -33,8 +33,12 @@ public class ChangeableLaneLockDTO {
     public ChangeableLaneLock dto2ChangeableLaneLock(Integer areaId) {
         ChangeableLaneLock changeableLaneLock = new ChangeableLaneLock();
         changeableLaneLock.setAreaId(areaId);
-        changeableLaneLock.setLockHour(this.getLockHour());
-        changeableLaneLock.setLockMinute(this.getLockMinute());
+        if(Objects.nonNull(this.getLockHour())){
+            changeableLaneLock.setLockHour(this.getLockHour());
+        }
+        if(Objects.nonNull(this.getLockMinute())){
+            changeableLaneLock.setLockMinute(this.getLockMinute());
+        }
         changeableLaneLock.setSchemeId(this.getSchemeId());
         changeableLaneLock.setStartTime(this.getStartTime());
         return changeableLaneLock;

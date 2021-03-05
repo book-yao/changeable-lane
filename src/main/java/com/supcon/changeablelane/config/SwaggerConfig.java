@@ -32,9 +32,9 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("匝道相关接口说明")
+                .title("可变车道相关接口说明")
 
-                .description("匝道相关接口使用说明 by JWF")
+                .description("可变车道相关接口使用说明 by JWF")
                 .version("1.0").build();
     }
 }

@@ -64,7 +64,7 @@ public class DataTrafficClient {
     }
 
     /**
-     * 获取匝道状态数据
+     * 获取可变车道状态数据
      *
      * @param acsId
      * @return
