@@ -84,6 +84,8 @@ public class ChangeableLaneLockService {
     @Autowired
     @Qualifier("scheduledExecutorService")
     private ScheduledExecutorService scheduledExecutorService;
+
+    private static Map<Integer,Boolean> lockMap = new ConcurrentHashMap<>();
     
     @Autowired
     private OsClient osClient;
@@ -106,10 +108,10 @@ public class ChangeableLaneLockService {
             executorService.execute(()->{
                 this.sendSchemeToOs(areaId,changeableLaneLock1.getSchemeId(),changeableLaneLock.getLockTime(),1,scheme.getId());
             });
-            executorService.execute(()->{
-                //缓存解锁任务
-                FutureCache.clearScheduleTask(areaId);
-            });
+//            executorService.execute(()->{
+//                //缓存解锁任务
+//                FutureCache.clearScheduleTask(areaId);
+//            });
 
         }else{
             Scheme scheme = schemeMapper.selectSchemeByAreaIdAndSchemeId(areaId, changeableLaneLock.getSchemeId());
@@ -127,10 +129,10 @@ public class ChangeableLaneLockService {
             executorService.execute(()->{
                 this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),changeableLaneLock.getLockTime(),2,scheme.getId());
             });
-            executorService.execute(()->{
-                //缓存解锁任务
-                cacheUnlock(changeableLaneLock);
-            });
+//            executorService.execute(()->{
+//                //缓存解锁任务
+//                cacheUnlock(changeableLaneLock);
+//            });
 
         }
         return null;
@@ -274,10 +276,14 @@ public class ChangeableLaneLockService {
                                 Integer id) {
         Scheme scheme ;
         if(Objects.equals(type,1)){
+            lockMap.put(areaId,Boolean.FALSE);
+            //当前线程sleep2秒，目的是让已存在的锁定线程终止
+            Thread.sleep(2000);
             //先获取当前区域运行信号机，可变车道牌,诱导屏方案
             insertRunningSchemeHis(areaId,true,id,true);
             scheme = fillSingleScheme(areaId,schemeId);
         }else{
+            lockMap.put(areaId,Boolean.TRUE);
             //先获取当前区域运行信号机，可变车道牌,诱导屏方案
             insertRunningSchemeHis(areaId,true,id,false);
             scheme = fillScheme(areaId,schemeId);
@@ -286,14 +292,15 @@ public class ChangeableLaneLockService {
         List<ChangeableLaneScheme> keyAcsSchemes = scheme.getKeyAcsScheme(keyAcsId);
         List<ChangeableLaneScheme> acsSchemes = scheme.getAcsScheme(keyAcsId);
         if(Objects.equals(type,1)){
-            sendOsScheme(acsSchemes,keyAcsSchemes,lockTime,false);
+            sendOsScheme(areaId,acsSchemes,keyAcsSchemes,lockTime,false);
         }else{
-            sendOsScheme(keyAcsSchemes,acsSchemes,lockTime,true);
+            sendOsScheme(areaId,keyAcsSchemes,acsSchemes,lockTime,true);
         }
 
     }
 
-    private void sendOsScheme(List<ChangeableLaneScheme> keyAcsSchemes,
+    private void sendOsScheme(Integer areaId,
+                              List<ChangeableLaneScheme> keyAcsSchemes,
                               List<ChangeableLaneScheme> acsSchemes,
                               Integer lockTime,
                               boolean isLock) {
@@ -302,7 +309,7 @@ public class ChangeableLaneLockService {
         keyAcsSchemes.stream()
                 .forEach(item->{
                     Future<Boolean> submit = executorService.submit(() -> {
-                        return downScheme(item,lockTime,isLock);
+                        return downScheme(areaId,item,lockTime,isLock);
                     });
                     result.add(submit);
                 });
@@ -325,7 +332,7 @@ public class ChangeableLaneLockService {
         acsSchemes.stream()
                 .forEach(item->{
                     Future<Boolean> submit = executorService.submit(() -> {
-                        return downScheme(item,lockTime,isLock);
+                        return downScheme(areaId,item,lockTime,isLock);
                     });
                     results.add(submit);
                 });
@@ -347,7 +354,8 @@ public class ChangeableLaneLockService {
      * 下发信号机方案，可变车道方案，待转屏方案
      * @param changeableLaneScheme
      */
-    private boolean downScheme(ChangeableLaneScheme changeableLaneScheme,
+    private boolean downScheme(Integer areaId,
+                               ChangeableLaneScheme changeableLaneScheme,
                                Integer lockTime,
                                boolean isLock) {
         //下发待转屏方案
@@ -392,7 +400,7 @@ public class ChangeableLaneLockService {
             variableLaneControl = new VariableLaneControl (changeableLaneScheme.getAcsId(),variableLaneList);
             variableLaneClient.variableLaneControlDown(variableLaneControl);
             //判断可变车道牌是否已经
-            isSend = judgeSchemeIsSend(changeableLaneScheme.getAcsId(), variableLaneList);
+            isSend = judgeSchemeIsSend(areaId,changeableLaneScheme.getAcsId(), variableLaneList);
             if(!isSend){
                 log.error("可变车道牌 | {} 下发失败",changeableLaneScheme.getAcsId());
                 return false;
@@ -408,16 +416,23 @@ public class ChangeableLaneLockService {
         //等待信号方案一个周期
         //获取当前方案剩余时间
         int acsLockTime=  lockTimeMap.get(changeableLaneScheme.getAcsId())!=null?lockTimeMap.get(changeableLaneScheme.getAcsId()):30;
-        try {
-            log.info("路口 | {}，信号机方案下发成功，进入等待时间，等待（{}）秒",
-                    changeableLaneScheme.getAcsId(),
-                    30);
-            Thread.sleep(30*1000);
-        } catch (InterruptedException e) {
-            log.error("服务异常：{}",e);
-            return false;
+        // 锁定时才进行等待，解锁不需要
+        if(isLock){
+            log.info("可变车道牌 | {}，信号机方案下发成功。进入等待时间 {} 秒",changeableLaneScheme.getAcsId(),30);
+            try {
+                LocalDateTime now = LocalDateTime.now().plusSeconds(30);
+                while(LocalDateTime.now().isBefore(now)){
+                    Thread.sleep(1000);
+                    if(Objects.isNull(lockMap.get(areaId))||!lockMap.get(areaId)){
+                        log.info("可变车道牌当前协同体 | {} 触发解锁操作，该线程终止 时间：{}",areaId,LocalDateTime.now());
+                        return false;
+                    };
+                }
+            } catch (InterruptedException e) {
+                log.error("服务异常：{}",e);
+                return false;
+            }
         }
-
         //下发可变车道牌方案
         log.info("可变车道牌 | {}，正式方案开始下发",changeableLaneScheme.getAcsId());
         List<VariableLaneDTO> variableLaneDTOS = changeableLaneScheme.getVariableLaneSchemesByType(2);
@@ -425,7 +440,7 @@ public class ChangeableLaneLockService {
             variableLaneControl = new VariableLaneControl
                     (changeableLaneScheme.getAcsId(),variableLaneDTOS,lockTime);
             variableLaneClient.variableLaneControlDown(variableLaneControl);
-            isSend = judgeSchemeIsSend(changeableLaneScheme.getAcsId(), variableLaneDTOS);
+            isSend = judgeSchemeIsSend(areaId,changeableLaneScheme.getAcsId(), variableLaneDTOS);
         }else{
             variableLaneControl =
                     VariableLaneControl.builder()
@@ -441,16 +456,22 @@ public class ChangeableLaneLockService {
         return isSend;
     }
 
-    private boolean judgeSchemeIsSend(Integer acsId,List<VariableLaneDTO> variableLaneList) {
+    @SneakyThrows
+    private boolean judgeSchemeIsSend(Integer areaId,
+                                      Integer acsId,
+                                      List<VariableLaneDTO> variableLaneList) {
         boolean isSuccess = false;
         LocalDateTime endTime = LocalDateTime.now().plusSeconds(150);
         while(LocalDateTime.now().isBefore(endTime)){
             VariableLaneStatesDTO variableLaneStatesDTO = osClient.variableLaneStates(acsId);
             //每隔1秒获取一次可变车道牌状态
-            try {
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                e.printStackTrace();
+
+            Thread.sleep(1000);
+
+            if(Objects.isNull(lockMap.get(areaId))||!lockMap.get(areaId)){
+                log.info("可变车道牌当前协同体 | {} 触发解锁操作，该线程终止 时间：{}",areaId,LocalDateTime.now());
+                isSuccess = false;
+                break;
             }
             if(Objects.nonNull(variableLaneStatesDTO)){
                 List<VariableLaneStateDTO> schemeRecord = variableLaneStatesDTO.getLaneStates();
