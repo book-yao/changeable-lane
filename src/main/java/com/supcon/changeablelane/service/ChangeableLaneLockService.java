@@ -164,7 +164,7 @@ public class ChangeableLaneLockService {
                 "可变车道 {} | 方案解锁定时任务 |  | 下次触发时间 / {}",
                 changeableLaneLock.getAreaId(),
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                        .format(LocalDateTime.now().plusMinutes(changeableLaneLock.getLockMinute())));
+                        .format(LocalDateTime.now().plusMinutes(changeableLaneLock.getLockTime())));
     }
 
 
@@ -286,22 +286,23 @@ public class ChangeableLaneLockService {
         List<ChangeableLaneScheme> keyAcsSchemes = scheme.getKeyAcsScheme(keyAcsId);
         List<ChangeableLaneScheme> acsSchemes = scheme.getAcsScheme(keyAcsId);
         if(Objects.equals(type,1)){
-            sendOsScheme(acsSchemes,keyAcsSchemes,lockTime);
+            sendOsScheme(acsSchemes,keyAcsSchemes,lockTime,false);
         }else{
-            sendOsScheme(keyAcsSchemes,acsSchemes,lockTime);
+            sendOsScheme(keyAcsSchemes,acsSchemes,lockTime,true);
         }
 
     }
 
     private void sendOsScheme(List<ChangeableLaneScheme> keyAcsSchemes,
                               List<ChangeableLaneScheme> acsSchemes,
-                              Integer lockTime) {
+                              Integer lockTime,
+                              boolean isLock) {
         List<Future<Boolean>> result = new ArrayList<>();
         //下发关键路口的方案
         keyAcsSchemes.stream()
                 .forEach(item->{
                     Future<Boolean> submit = executorService.submit(() -> {
-                        return downScheme(item,lockTime);
+                        return downScheme(item,lockTime,isLock);
                     });
                     result.add(submit);
                 });
@@ -324,7 +325,7 @@ public class ChangeableLaneLockService {
         acsSchemes.stream()
                 .forEach(item->{
                     Future<Boolean> submit = executorService.submit(() -> {
-                        return downScheme(item,lockTime);
+                        return downScheme(item,lockTime,isLock);
                     });
                     results.add(submit);
                 });
@@ -346,7 +347,9 @@ public class ChangeableLaneLockService {
      * 下发信号机方案，可变车道方案，待转屏方案
      * @param changeableLaneScheme
      */
-    private boolean downScheme(ChangeableLaneScheme changeableLaneScheme,Integer lockTime) {
+    private boolean downScheme(ChangeableLaneScheme changeableLaneScheme,
+                               Integer lockTime,
+                               boolean isLock) {
         //下发待转屏方案
         List<Boolean> booleans= new ArrayList<>();
         changeableLaneScheme.getTrafficScreenSchemes().stream()
@@ -355,6 +358,15 @@ public class ChangeableLaneLockService {
                     boolean b = trafficScreenClient.sendLedMessage(item);
                     booleans.add(b);
                 });
+        if(!isLock){
+            changeableLaneScheme.getTrafficScreenSchemes().stream()
+                    .filter(Objects::nonNull)
+                    .forEach(item->{
+                        item.setIsSend(0);
+                        boolean b = trafficScreenClient.sendLedMessage(item);
+                        booleans.add(b);
+                    });
+        }
         for (Boolean res:booleans) {
             if(!res){
                 log.error("诱导屏方案下发失败,流程结束");
@@ -399,8 +411,8 @@ public class ChangeableLaneLockService {
         try {
             log.info("路口 | {}，信号机方案下发成功，进入等待时间，等待（{}）秒",
                     changeableLaneScheme.getAcsId(),
-                    acsLockTime);
-            Thread.sleep(acsLockTime*1000);
+                    30);
+            Thread.sleep(30*1000);
         } catch (InterruptedException e) {
             log.error("服务异常：{}",e);
             return false;
