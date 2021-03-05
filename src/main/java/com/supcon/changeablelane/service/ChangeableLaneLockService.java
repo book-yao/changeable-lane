@@ -98,9 +98,13 @@ public class ChangeableLaneLockService {
             if(Objects.isNull(changeableLaneLock1)){
                 return null;
             }
+            Scheme scheme = schemeMapper.selectSchemeByAreaIdAndSchemeId(areaId, changeableLaneLock1.getSchemeId());
+            if(Objects.isNull(scheme)){
+                return null;
+            }
             changeableLaneLockMapper.deleteChangeableLaneLockByAreaId(areaId);
             executorService.execute(()->{
-                this.sendSchemeToOs(areaId,changeableLaneLock1.getSchemeId(),changeableLaneLock.getLockTime(),1);
+                this.sendSchemeToOs(areaId,changeableLaneLock1.getSchemeId(),changeableLaneLock.getLockTime(),1,scheme.getId());
             });
             executorService.execute(()->{
                 //缓存解锁任务
@@ -121,7 +125,7 @@ public class ChangeableLaneLockService {
             changeableLaneLockMapper.insertChangeableLaneLock(changeableLaneLock.dto2ChangeableLaneLock(areaId));
             //向信号机下发信号机方案，可变车道牌方案，待转屏方案
             executorService.execute(()->{
-                this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),changeableLaneLock.getLockTime(),2);
+                this.sendSchemeToOs(areaId,changeableLaneLock.getSchemeId(),changeableLaneLock.getLockTime(),2,scheme.getId());
             });
             executorService.execute(()->{
                 //缓存解锁任务
@@ -143,7 +147,7 @@ public class ChangeableLaneLockService {
                                         LocalDateTime.now()
                                        );
                                 changeableLaneLock.setLockType(2);
-                                this.sendSchemeToOs(changeableLaneLock.getAreaId(),changeableLaneLock.getSchemeId(),changeableLaneLock.getLockTime(),1);
+                                this.areaLock(changeableLaneLock.getAreaId(),changeableLaneLock);
                                 FutureCache.clearScheduleTask(changeableLaneLock.getAreaId());
                             } catch (Exception e) {
                                 log.error(
@@ -263,15 +267,19 @@ public class ChangeableLaneLockService {
      * @param schemeId
      */
     @SneakyThrows
-    private void sendSchemeToOs(Integer areaId, Integer schemeId, Integer lockTime, Integer type) {
+    private void sendSchemeToOs(Integer areaId,
+                                Integer schemeId,
+                                Integer lockTime,
+                                Integer type,
+                                Integer id) {
         Scheme scheme ;
         if(Objects.equals(type,1)){
             //先获取当前区域运行信号机，可变车道牌,诱导屏方案
-            insertRunningSchemeHis(areaId,true,schemeId,true);
+            insertRunningSchemeHis(areaId,true,id,true);
             scheme = fillSingleScheme(areaId,schemeId);
         }else{
             //先获取当前区域运行信号机，可变车道牌,诱导屏方案
-            insertRunningSchemeHis(areaId,true,schemeId,false);
+            insertRunningSchemeHis(areaId,true,id,false);
             scheme = fillScheme(areaId,schemeId);
         }
         //区分出关键路口方案以及相领路口方案

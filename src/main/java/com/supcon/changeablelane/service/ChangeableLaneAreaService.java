@@ -8,6 +8,7 @@ import com.supcon.changeablelane.mapper.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -101,13 +102,15 @@ public class ChangeableLaneAreaService {
     private void fillScreenScheme(Scheme scheme) {
         scheme.getChangeableLaneSchemes().stream()
                 .forEach(changeableLaneScheme -> {
-                    //填充诱导屏假数据
-                    List<TrafficScreen> trafficScreens = trafficScreenMapper.selectTrafficScreenByAcsId(changeableLaneScheme.getAcsId());
-                    List<TrafficScreenScheme> collect = trafficScreens.stream()
-                            .map(item -> {
-                                return item.createScheme();
-                            }).collect(Collectors.toList());
-                    changeableLaneScheme.setTrafficScreenSchemes(collect);
+                    if(CollectionUtils.isEmpty(changeableLaneScheme.getTrafficScreenSchemes())){
+                        //填充诱导屏假数据
+                        List<TrafficScreen> trafficScreens = trafficScreenMapper.selectTrafficScreenByAcsId(changeableLaneScheme.getAcsId());
+                        List<TrafficScreenScheme> collect = trafficScreens.stream()
+                                .map(item -> {
+                                    return item.createScheme();
+                                }).collect(Collectors.toList());
+                        changeableLaneScheme.setTrafficScreenSchemes(collect);
+                    }
                 });
     }
 
