@@ -276,9 +276,9 @@ public class ChangeableLaneLockService {
                                 Integer id) {
         Scheme scheme ;
         if(Objects.equals(type,1)){
-            lockMap.put(areaId,Boolean.FALSE);
-            //当前线程sleep2秒，目的是让已存在的锁定线程终止
-            Thread.sleep(2000);
+            synchronized (lockMap){
+                lockMap.put(areaId,Boolean.FALSE);
+            }
             //先获取当前区域运行信号机，可变车道牌,诱导屏方案
             insertRunningSchemeHis(areaId,true,id,true);
             scheme = fillSingleScheme(areaId,schemeId);
